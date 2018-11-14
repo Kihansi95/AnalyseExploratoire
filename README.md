@@ -1,6 +1,6 @@
 Analyse Exploratoire
 =================================
-Duc Hau NGUYEN
+Duc Hau NGUYEN  
 Anais RABARRY
 
 Project funcionality files
@@ -15,7 +15,7 @@ Notes
 * To clear console in R : __Ctrl+L__
 * Datasets are found in the folder data. You will find different project lied on different dataset that are stated in the above section.
 
-Candidate dataset source  
+Candidate dataset sources  
 ---------------------------------
 Olympique  
 https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results
