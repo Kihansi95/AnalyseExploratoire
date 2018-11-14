@@ -14,6 +14,7 @@ Notes
 * Don't forget to change the workspace into the project in order to avoid linkage dependency. (Use __Ctrl + Shift (Maj.) + H__).
 * To clear console in R : __Ctrl+L__
 * Datasets are found in the folder data. You will find different project lied on different dataset that are stated in the above section.
+* From RStudio, __Shift + Left Click__ the source link will open the page
 
 Candidate dataset sources  
 ---------------------------------
