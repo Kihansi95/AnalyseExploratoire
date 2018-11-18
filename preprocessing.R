@@ -16,5 +16,7 @@ noc_dataset =     read.csv2("data/olympic-history-athletes-and-results/noc_regio
 levels                      <- levels(olympic_dataset$Medal)
 levels[length(levels) + 1]  <- "None"                                     # Get levels and add "None"
 olympic_dataset$Medal <- factor(olympic_dataset$Medal, levels = levels)   # refactor include "None" as a factor level
+# Not need, it will complicate the situation
 olympic_dataset$Medal[is.na(olympic_dataset$Medal)] <- "None"             # replace NA with "None"
+
 
