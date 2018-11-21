@@ -29,4 +29,7 @@ https://www.kaggle.com/gemartin/world-bank-data-1960-to-2016#life_expectancy.csv
 
 crypto currency :  
 https://www.kaggle.com/taniaj/cryptocurrency-market-history-coinmarketcap
-  
+
+World Inequality :
+https://wid.world/fr/news-article/nouveau-telechargez-les-donnees-wid-world-sur-les-inegalites-depuis-stata-avec-un-package-ssc/ 
+https://ourworldindata.org/the-missing-economic-measure-wealth 
