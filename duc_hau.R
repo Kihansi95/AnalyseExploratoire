@@ -11,6 +11,7 @@ str(olympic_dataset)
 # TODO may not need
 # correlation_matrix = cor(as.matrix(olympic_dataset), method = c("pearson", "kendall", "spearman"))
 
+# =========== By Country ===========
 # Count medal each country got
 medal_per_country <- olympic_dataset %>% 
     count(NOC, Medal) %>%
@@ -31,3 +32,23 @@ top_medal2 = olympic_dataset %>%
     filter(NOC %in% top_medal$NOC)
 
 ggplot(top_medal2, aes(x = NOC, y = n, fill = Medal)) + geom_bar(stat="identity") + coord_flip()
+
+#Investigate USA:
+usa = olympic_dataset %>%
+    filter(NOC == "USA", Medal != 'None') %>%
+    ddply(c("Year"), summarise, Total_medal = n()) %>%
+    ggplot(aes(x = Year, y = Total_medal)) + geom_bar(stat = "identity")
+
+# =========== By Age ===========
+# Show medal by age
+olympic_dataset %>%
+    count(Age, Medal) %>%
+    spread(Medal, n, fill=0) %>%
+    mutate(Total = Bronze + Gold + Silver) %>%
+    ggplot(aes(x = Age, y = Total)) + geom_bar(stat = "identity")
+
+# Medal quality by age
+olympic_dataset %>% 
+    count(Age, Medal) %>%
+    subset(Medal != "None") %>%
+    ggplot(aes(x = Age, y = n, fill = Medal)) + geom_bar(stat = "identity")

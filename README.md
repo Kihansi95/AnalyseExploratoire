@@ -9,12 +9,17 @@ I (Duc) made several file for different functionalities (preprocessing dataset, 
 If you want to avoid retyping those codes, use __source(file="filename.R")__
 * __preprocessing.R__ format data in the correct form, i.e tranform data into factor/int/float. The file preprocess different dataset, need to see further into the file to know for what dataset it formats.
 
-Notes
+Pratical Notes
 ---------------------------------
 * Don't forget to change the workspace into the project in order to avoid linkage dependency. (Use __Ctrl + Shift (Maj.) + H__).
 * To clear console in R : __Ctrl+L__
 * Datasets are found in the folder data. You will find different project lied on different dataset that are stated in the above section.
 * From RStudio, __Shift + Left Click__ the source link will open the page
+
+Report Note:
+---------------------------------
+* The report would be in format `.Rmd`
+* The document can be written in [Rmardown](https://rmarkdown.rstudio.com/lesson-9.html), see more in [pdf format](https://bookdown.org/yihui/rmarkdown/pdf-document.html#table-of-contents-1)
 
 Candidate dataset sources  
 ---------------------------------
