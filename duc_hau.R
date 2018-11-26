@@ -52,3 +52,33 @@ olympic_dataset %>%
     count(Age, Medal) %>%
     subset(Medal != "None") %>%
     ggplot(aes(x = Age, y = n, fill = Medal)) + geom_bar(stat = "identity")
+
+# =========== Performance ===========
+# Maybe the number of medal says nothing, may be it's simply many participant figuring that category
+# Performance should measure #Medal/#Participant = (#Gold + #Silver + #Bronze)/(#G + #S + #B + #None)
+# **Problem**: category X has only 1 participant but is winner => 100% performance.
+## =========== Age ===========
+medal_per_age <- olympic_dataset %>%
+    count(Age, Medal) %>%
+    spread(Medal, n, fill=0) %>%
+    mutate(
+        Nb_participant = Bronze + Gold + Silver + None,
+        Nb_medal = Bronze + Gold + Silver
+    )
+
+# We can test with various twist alpha:
+alpha = mean(medal_per_age$Nb_participant)
+# alpha = max(medal_per_age$Nb_participant)
+alpha = medal_per_age$Nb_participant
+
+medal_per_age = medal_per_age %>%
+    mutate(
+        Performance = (Nb_participant/alpha) * (Nb_medal / Nb_participant)
+    )
+
+ggplot(medal_per_age, aes(x = Age, y = Performance)) + geom_bar(stat = "identity")
+
+## =========== Country ===========
+medal_per_country <- olympic_dataset %>% 
+    count(NOC, Medal) %>%
+    spread(Medal, n, fill=0)
