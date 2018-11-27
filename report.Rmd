@@ -1,6 +1,6 @@
 ---
 title: "Report"
-author: "Duc Hau NGUYEN; Anais RABARY"
+author: "Duc Hau NGUYEN; Anaïs RABARY"
 date: "26 novembre 2018"
 output: pdf_document
 bibliography: report.bib
