@@ -10,13 +10,23 @@ str(olympic_dataset)
 
 #keep only data from 1980 till now (10 olympic games)
 olympic_dataset = olympic_dataset[olympic_dataset$'Year' >= 1980,]
-olympic_dataset = left_join(olympic_dataset, noc_dataset, by='NOC')
+# filter PIB dataset 
+PIBdata<-PIB_dataset[,c("Team","Year","PIB")]
+# Add PIB Value (Gross Domestic Product GDP )
+#TODO !!!! 
+# ATTENTION, les noms des pays (Team) dans PIBdata sont un peu différent que ceux dans olympic_dataset 
+#Par exemple : dans PIBdata, on a USA alors qu'on a Unighted States dans olympic dataset 
+#à Gérer à la main !!!
+olympic_dataset = left_join(olympic_dataset, PIBdata, by=c('Team','Year'))
+
+# Factor for Year column
 olympic_dataset['Year'] <- lapply(olympic_dataset['Year'], factor)
+
 
 #************************************************************************
 # GOAL : Count medal each country got
 medal_per_country <- ddply(olympic_dataset, 
-                           .(region), 
+                           .(Team), 
                            function(x){
                              gold<- sum(x$Medal=="Gold")
                              silver<- sum(x$Medal =="Silver")
@@ -30,7 +40,7 @@ medal_per_country <- medal_per_country[medal_per_country$Gold!=0,]
 top_gold = top_n(arrange(medal_per_country,desc(Gold)), 20, Gold)
 
 #display NOC with gold medals over the past 10 olympics games
-t <- ggplot(data=top_gold, aes(reorder(region, -Gold), Gold)) + geom_col(aes(fill=region)) + guides(fill="none")
+t <- ggplot(data=top_gold, aes(reorder(Team, -Gold), Gold)) + geom_col(aes(fill=Team)) + guides(fill="none")
 t+labs(x="Regions", y="Gold medals", title = "Top 20 regions that won Gold medals in the past 10 Olympics Games ")
 #x= reorder(NOC,-Gold), y = Gold)
 #ggplot(top_medal, aes(x = reorder(NOC, -Total), y = Total)) + geom_bar(stat="identity", aes(fill=NOC)) + coord_flip()
