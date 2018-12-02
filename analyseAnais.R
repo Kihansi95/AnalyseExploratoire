@@ -39,7 +39,7 @@ t+labs(x="Regions", y="Gold medals", title = "Top 20 regions that won Gold medal
 #*************************************************************
 
 # GOALS : see if the height of athletes has an influence of winning medals
-# ranger par ordre décroissant de taille les athletes
+# ranger par ordre d?croissant de taille les athletes
 olympic_dataset <- drop_na(olympic_dataset, Height)
 medals_per_height <- ddply(olympic_dataset,
                            .(Height, Sex),
@@ -60,7 +60,7 @@ t+labs(x="Height", y="Total Medals (Gold, Silver, Bronze)", title = "Total numbe
 # GOAL : idem but we will see if there is an evolution over the years
 
 # GOALS : see if the height of athletes has an influence of winning medals
-# ranger par ordre décroissant de taille les athletes
+# ranger par ordre d?croissant de taille les athletes
 #filter(olympic_dataset,Height>=160 & Height <=190)
 medals_per_height_year <- ddply(filter(olympic_dataset,Height>=160 & Height <=200),
                            .(Height, Year, Sex),
