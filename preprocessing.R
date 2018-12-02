@@ -11,7 +11,14 @@
 # load dataset
 olympic_dataset = read.csv2("data/olympic-history-athletes-and-results/athlete_events.csv",sep=",", dec=".")
 noc_dataset =     read.csv2("data/olympic-history-athletes-and-results/noc_regions.csv",sep=",", dec=".")
-forest_dataset = read.csv2("data/forest/API_AG.LND.FRST.ZS_DS2_en_csv_v2_10224801.csv",sep=",", dec=".")
+
+#PIBMetadata_dataset = read.csv2("data/PIB-grossDomesticProduct_1980-2017/WID_Metadata_30112018-130904.csv", sep=",", dec=".")
+PIB_dataset = read.csv2("data/PIB-grossDomesticProduct_1980-2017/WID_Data_30112018-130904.csv", 
+                        header = FALSE,col.names =c("region", "Indicator", "Percentile", "Year", "PIB"),sep=";", dec=".")
+PIB_datasetFULL = read.csv2("data/PIB-grossDomesticProduct_1896-2017/WID_Data_30112018-144413.csv", 
+                        header = FALSE,col.names =c("region", "Indicator", "Percentile", "Year", "PIB"),sep=";", dec=".")
+# delete row that have the value "null" for country :
+#PIB_dataset = PIB_dataset[-which(PIB_dataset$region =="null"), ]
 
 # For athletes got NA medal, will receive "None" medal
 levels                      <- levels(olympic_dataset$Medal)
