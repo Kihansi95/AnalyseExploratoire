@@ -25,7 +25,7 @@ library(readr)
 
 ```{r dataset, echo=FALSE}
 # le code n'affichera pas si echo = false
-olympic_dataset <- read_csv("data/olympic-history-athletes-and-results/athlete_events.csv")
+olympic_dataset <- read_csv("../data/olympic-history-athletes-and-results/athlete_events.csv")
 olympic_dataset$Medal[is.na(olympic_dataset$Medal)] <- "None"
 factor_cols <- c('Sex', 'NOC', 'Medal', 'Sport')
 olympic_dataset[factor_cols] <- lapply(olympic_dataset[factor_cols], factor)
@@ -41,9 +41,9 @@ Dans le cadre du projet d'Analyse Exploratoire à l'INSA Toulouse, avec l'accomp
 
 ## Problématique
 
-Les Jeux Olympics sont devenus le symbol de la force physique et mentale de l'être - humain, c'est l'occasion des élites de chaque pays se réunissent et montre leux spectaculaire performance. Une autre côté de ces occasion spectacle est un sujet intéressant au sein des scientifiques: La dernière sciècle a prédit que l'humain va bientôt touche la limite physique, tantdis que à nos jours, les sportifs continuent toujours à établir un nouveau record.
+Les Jeux Olympics sont devenus le symbol de la force physique et mentale de l'être humain. C'est l'occasion pour que les élites de chaque pays se réunissent et montrent leurs spectaculaires performances. D'un autre côté, ces occasions qualifiées de spectaculaires sont un sujet intéressant pour des scientifiques : Le dernier sciècle a prédit que l'humain atteindra bientôt ses limites physiques, tandis que l'on voittoujours aujourd'hui des sportifs continuer d'établir de nouveaux records.
 
-Après de centaines d'années des JO, l'humanité a trouvé quelques facteurs qui optimise la performance physique. L'historique des JO pourraient fournir une indication pour la question: Quels sont les facteurs qui influent/optimisent la performance physiques dans les JO.
+Avec plusieurs centaines d'années d'existance des JO, l'humanité a identifié quelques facteurs optimisant la performance physique. L'historique des JO pourraient surement fournir une indication à la question: Quels sont les facteurs qui influent/optimisent la performance physiques dans les JO ?
 
 Pour établir une étude d'exploration sur ce problème, il est nécessaire de croiser nos données avec des données de la source World Wide Data, sur les PIB des pays (...) (cf. dans biblio). 
 
@@ -52,7 +52,7 @@ Par la suite de l'étude, on analyse sur les grandes axes: caratéristique de pa
 # 1. Première axe: l'âge qui optimise la performance
 
 ## 1.1 Étude préliminaire
-L'approche naïf sera à analyser le nombre de médaille que chaque âge pourras obtenir
+L'approche naïve sera d'analyser le nombre de médailles que chaque âge a pu obtenir, quelque soit l'année des Jeux.
 
 ```{r qual_medal_age}
 olympic_dataset %>% 
