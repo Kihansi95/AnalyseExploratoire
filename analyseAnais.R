@@ -35,16 +35,14 @@ PIBdata$region[PIBdata$region=='DR Congo']<- 'Democratic Republic of the Congo'
 PIBdata$region[PIBdata$region=='Russian Federation']<- 'Russia'
 PIBdata$region[PIBdata$region=='Syrian Arab Republic']<- 'AR Syria'
 PIBdata$region[PIBdata$region=='Trinidad and Tobago']<- 'Trinidad'
-PIBdata$region[PIBdata$region=='Unighted Kingdom']<- 'UK'
+PIBdata$region[PIBdata$region=='United Kingdom']<- 'UK'
 
 
 
 
 # Add PIB Value (Gross Domestic Product GDP )
-#TODO !!!! 
 # ATTENTION, les noms des pays (Team) dans PIBdata sont un peu différent que ceux dans olympic_dataset 
 #Par exemple : dans PIBdata, on a USA alors qu'on a Unighted States dans olympic dataset 
-#à Gérer à la main !!!
 #olympic_dataset = left_join(olympic_dataset, PIBdata, by=c('region','Year'))
 
 # Factor for Year column
@@ -54,9 +52,9 @@ olympic_dataset['Year'] <- lapply(olympic_dataset['Year'], factor)
 #************************************************************************
 # GOAL : Count medal each country got
 medal_per_country <- ddply(olympic_dataset, 
-                           .(region,), 
+                           .(region), 
                            function(x){
-                             gold<- sum(x$Medal=="Gold")
+                             gold <- sum(x$Medal=="Gold")
                              silver<- sum(x$Medal =="Silver")
                              bronze<- sum(x$Medal =="Bronze")
                              data.frame(Gold=gold, Bronze=bronze, Silver=silver)
@@ -70,7 +68,7 @@ top_gold = top_n(arrange(medal_per_country,desc(Gold)), 20, Gold)
 top_gold['region'] <- lapply(top_gold['region'], factor)
 
 #display NOC with gold medals over the past 10 olympics games
-t <- ggplot(data=top_gold, aes(reorder(Team, -Gold), Gold)) + geom_col(aes(fill=Team)) + guides(fill="none")
+t <- ggplot(data=top_gold, aes(reorder(region, -Gold), Gold)) + geom_col(aes(fill=region)) + guides(fill="none")
 t+labs(x="Regions", y="Gold medals", title = "Top 20 regions that won Gold medals in the past 10 Olympics Games ")
 #x= reorder(NOC,-Gold), y = Gold)
 #ggplot(top_medal, aes(x = reorder(NOC, -Total), y = Total)) + geom_bar(stat="identity", aes(fill=NOC)) + coord_flip()
@@ -140,5 +138,58 @@ t+labs(x="Regions", y="Sum Medals", title = "Top 3 regions that won the most med
 #ggplot(top_medal, aes(x = reorder(NOC, -Total), y = Total)) + geom_bar(stat="identity", aes(fill=NOC)) + coord_flip()
 # TODO : faire un graphe avec chaque top 3 en fonction du PIB de 1980 à 2016
 
+
+#******************************************************************
+# GOAL : see PIB of top 10 country in 2016
+PIBdata2016 <- arrange(filter(PIBdata,PIBdata$Year=="2016"), desc(PIB))
+top2016PIB <-top_n(PIBdata2016, 10, PIB)
+# Reorder factor : 
+top2016PIB$region <- factor(top2016PIB$region, levels = top2016PIB$region[order(desc(top2016PIB$PIB))])
+#top2016PIB$region <-data.frame(lapply(top2016PIB$region, as.character), stringAsFactors=FALSE)
+
+t <- ggplot(data=top2016PIB, aes(region, PIB)) + geom_col(aes(fill=region)) + guides(fill="none")
+t+labs(x="Regions", y="PIB 2016", title = "Top 10 regions that have the best PIB in 2016")
+
+#********************************************************************
+# GOAL : see who won the most medals in 2016
+medal_per_country2016 <- ddply(filter(olympic_dataset,olympic_dataset$Year=="2016"), 
+                              .(region), 
+                              function(x){
+                                gold<- sum(x$Medal=="Gold")
+                                silver<- sum(x$Medal =="Silver")
+                                bronze<- sum(x$Medal =="Bronze")
+                                data.frame(Medals=gold+bronze+silver)
+                              }  )
+
+
+medal_per_country2016 <- arrange(medal_per_country2016, desc(Medals))
+medal_per_country2016 = left_join(medal_per_country2016, PIBdata2016, by=c('region'))
+top5_2016 <- top_n(medal_per_country2016,10, Medals)
+
+top5_2016['region'] <- lapply(top5_2016['region'], factor)
+top5_2016$region <- factor(top5_2016$region, levels = top5_2016$region[order(desc(top5_2016$PIB))])
+
+t <- ggplot(data=top5_2016, aes(region, PIB)) + geom_col(aes(fill=region)) + guides(fill="none")
+t+labs(x="Regions", y="medals", title = "Top 10 regions that won the most medals in 2016")
+
+#********************************************************************
+# GOALS : see PIB evolution over 1980 to 2016 of top 10 winners in 2016
+
+PIB_10 <- arrange(filter(PIBdata,PIBdata$region %in% top5_2016$region), Year)
+t <- ggplot(data=PIB_10, aes(Year,PIB,group=region))+geom_line(aes(color=region), size =1)
+t+labs(x="Year", y="PIB", title = "PIB evolution over 1980 to 2016 of top 10 winners in 2016")
+
+
+# Rank : 1 USA, 2 Germany, 3 UK, 4 Russia, 5 China, 6 France, 7 Australia, 8 Italy, 9 canada, 10 Japan
+
+#*****************************************************************
+#GOAL : set a column of country rank of PIB
+# TODO
+
+# Question : quel est le rang PIB de chaque pays remportant le plus de médaille ? 
+# est-ce que l'ordre change au fil des ans ? et le PIB ?
+# quelle est la place dans les JO des Pays qui ont le PIB le plus important ?
+
+PIBdatasummarise <- ddply(PIB_dataset,  .(region), summarise, MeanPIB= mean(PIB) )
 
 
