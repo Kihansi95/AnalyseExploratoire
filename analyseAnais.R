@@ -42,9 +42,9 @@ PIBdata$region[PIBdata$region=='Unighted Kingdom']<- 'UK'
 
 # Add PIB Value (Gross Domestic Product GDP )
 #TODO !!!! 
-# ATTENTION, les noms des pays (Team) dans PIBdata sont un peu différent que ceux dans olympic_dataset 
+# ATTENTION, les noms des pays (Team) dans PIBdata sont un peu diff?rent que ceux dans olympic_dataset 
 #Par exemple : dans PIBdata, on a USA alors qu'on a Unighted States dans olympic dataset 
-#à Gérer à la main !!!
+#? G?rer ? la main !!!
 #olympic_dataset = left_join(olympic_dataset, PIBdata, by=c('region','Year'))
 
 # Factor for Year column
@@ -54,7 +54,7 @@ olympic_dataset['Year'] <- lapply(olympic_dataset['Year'], factor)
 #************************************************************************
 # GOAL : Count medal each country got
 medal_per_country <- ddply(olympic_dataset, 
-                           .(region,), 
+                           .(region), 
                            function(x){
                              gold<- sum(x$Medal=="Gold")
                              silver<- sum(x$Medal =="Silver")
@@ -138,7 +138,7 @@ t <- ggplot(data=top3, aes(region, PIB)) + geom_col(aes(fill=region)) + guides(f
 t+labs(x="Regions", y="Sum Medals", title = "Top 3 regions that won the most medals 1980")
 #x= reorder(NOC,-Gold), y = Gold)
 #ggplot(top_medal, aes(x = reorder(NOC, -Total), y = Total)) + geom_bar(stat="identity", aes(fill=NOC)) + coord_flip()
-# TODO : faire un graphe avec chaque top 3 en fonction du PIB de 1980 à 2016
+# TODO : faire un graphe avec chaque top 3 en fonction du PIB de 1980 ? 2016
 
 
 
