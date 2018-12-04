@@ -53,13 +53,17 @@ olympic_dataset %>%
     count(Age, Medal) %>%
     spread(Medal, n, fill=0) %>%
     mutate(Total = Bronze + Gold + Silver) %>%
-    ggplot(aes(x = Age, y = Total)) + geom_bar(stat = "identity")
+    ggplot(aes(x = Age, y = Total)) + 
+    geom_bar(stat = "identity", fill="steelblue") + 
+    #geom_smooth() +
+    labs(x="Âge", y="Nomre de médaille", title = "Nombre de médaille selon l'âge de participants", subtitle='L\'âge le plus jeune est à 10')
 
 # Medal quality by age
 olympic_dataset %>% 
     count(Age, Medal) %>%
     subset(Medal != "None") %>%
-    ggplot(aes(x = Age, y = n, fill = Medal)) + geom_bar(stat = "identity")
+    ggplot(aes(x = Age, y = n, fill = Medal)) + geom_bar(stat = "identity") +
+    labs(x="Âge", y="Nomre de médaille", title = "Qualité de médaille selon l'âge")
 
 # =========== Performance ===========
 # Maybe the number of medal says nothing, may be it's simply many participant figuring that category
@@ -111,12 +115,20 @@ medal_per_country = medal_per_country %>%
     arrange(desc(Performance)) %>%
     top_n(n)
 
-ggplot(medal_per_country, aes(x = NOC, y = Performance)) + geom_bar(stat = "identity")
+ggplot(medal_per_country, aes(x = NOC, y = Performance)) + 
+    geom_bar(stat = "identity") +
+    labs(x="Pays", y="Performance", title = "Chance d'avoir un médail pour un sportif", subtitle="Le plus haute valeur, le mieux chance qu'on a. Valeur 1 veut dire que 100% le pays gagnera de médaille")
 
 # =========== Evolution ===========
 # Check out if countries start to recrute sportman at age 25
 age_evolution = olympic_dataset %>%
     subset(Medal != "None")
 
-ggplot(age_evolution) + geom_point( aes(x = Year, y = Age, color = Medal))+ geom_smooth(aes(x = Year, y = Age))
-ggplot(age_evolution, aes(x = as.factor(Year), y = Age)) + geom_boxplot() + geom_smooth()
+ggplot(age_evolution) + 
+    geom_point( aes(x = Year, y = Age, color = Medal)) + 
+    geom_smooth(aes(x = Year, y = Age)) + 
+    labs(x="Age", y="Année", title = "Distribution d'age de participants", subtitle="De 1986 à 2016")
+
+ggplot(age_evolution) + 
+    geom_boxplot(aes(x = as.factor(Year), y = Age)) +
+    labs(x="Age", y="Année", title = "Distribution d'age de participants", subtitle="De 1986 à 2016")
