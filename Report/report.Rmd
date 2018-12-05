@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(ggplot2)
 library(stringr)
+library(plyr)
 library(dplyr)
 library(tidyr)
 library(readr)
@@ -46,7 +47,7 @@ Après quelques maigres tentatives, c'est seulement depuis 1896 que les Jeux Oly
 
 Dans le cadre du projet d'Analyse Exploratoire à l'INSA Toulouse, avec l'accompagnement de notre professeur Gilles Tredan, nous avons récupéré sur le site Kaggle un dataset sur ces Jeux Olympiques moderne. Ce dernier recense des informations sur tous les athlètes ayant participés aux JO, les médailles qu'ils ont gagnés, leur équipe, l'année de participation, etc. Suivant les axes explorés dans ce rapport et détaillés ci-après, nous avons eu besoin de croiser nos données avec des données sur le PIB des pays, issues de la source World Wide Data.
 
-Sauf précision contraire, les données sont exploitées ici dans leur totalité, depuis la création des Jeux Olympiques modernes (1896). Suivant l'analyse, les données incomplètes seront traitées différemment. Ces choix seront justifiés.
+Sauf précision contraire, les données sont exploitées ici dans leur totalité, depuis la création des Jeux Olympiques modernes (1896). Suivant l'analyse, les données incomplètes seront traitées différemment. Ces choix seront justifiés si nécessaire.
 
 ## Problématique
 
@@ -56,26 +57,42 @@ Avec plusieurs centaines d'années d'existance des JO, l'humanité a identifié 
 
 On peut aussi se demander quelle est l'influence de la richesse d'un pays et de sa situation sociale sur les performances aux Jeux olympiques.
 
-Dans cette étude, on analyse ces problématiques via les grandes axes suivant : les charactéristiques physiques des participants, leur âge,les performances de chaque équipe nationale, la richesse de chaque pays. Certains axes nous mènent à analyser des phénomènes particuliers. D'autres nous demandent une étude supplémentaire pour mieux les comprendre.
+Dans cette étude, on analyse ces problématiques via les grandes axes suivant : les caractéristiques physiques des participants, leur âge,les performances de chaque équipe nationale, la richesse de chaque pays. Certains axes nous mènent à analyser des phénomènes particuliers. D'autres nous demandent une étude supplémentaire pour mieux les comprendre.
 
-# 1. Premièr axe: l'âge optimise la performance
+# 1. Premièr axe: Les caractéristiques physiques des athlètes inflencent leur performance
 
-## 1.1 Étude préliminaire
-L'approche naïve permet ici de présenterle nombre de médailles que chaque tranche d'âge a pu obtenir, quelque soit l'année des Jeux.
+## 1.1 l'âge optimise la performance
+L'approche naïve permet ici de présenterle nombre de médailles que chaque tranche d'âge a pu obtenir, quelque soit l'année des Jeux. La performance est mesurée ici en fonction du nombre de médailles gagnées ainsi qu'en fonction de la "couleur" de la médaille. C'est en effet un bon indicteur pour discriminer les performances entre les athlètes sur le podium et ceux n'ayant pas remporté de médaille. 
 
 ```{r qual_medal_age, echo=FALSE}
 olympic_dataset %>% 
     count(Age, Medal) %>%
     subset(Medal != "None") %>%
     ggplot(aes(x = Age, y = n, fill = Medal)) + geom_bar(stat = "identity") +
-    labs(x="Âge", y="Nombre de médailles", title = "Qualité des médailles obtenues selon l'âge des athlètes")
+    labs(x="Âge en année", y="Nombre de médailles", title = "Qualité des médailles obtenues selon l'âge des athlètes")
 ```
 
-## 1.2
+## 1.2 La taille entre-t-elle en question ?
+
+A travers l'étude suivante, on veut essayer de comprendre si la taille des athlètes est corrélées avec leur performance. On présente ici les médailles gagnées par les athlètes féminines et masculins en fonction de leur taille.
+
+
+```{r medals_height, echo=FALSE}
+olympic_dataset <- drop_na(olympic_dataset, Height)
+medals_per_height <- ddply(olympic_dataset,
+                           .(Height, Sex),
+                           function(x){
+                             medals <- sum(x$Medal=="Gold" | x$Medal=="Sylver" | x$Medal =="Bronze")
+                             data.frame(Medals= medals)
+                           }  )
+ggplot(data=medals_per_height,aes(Height, Medals))+geom_col(position="dodge", aes(fill=Sex))+labs(x="taille en cm", y="Total des médailles (Or, Argent, Bronze)", title = "Nombre de médailles gagnées par les athlètes suivant leur taille et leur sexe", subtitle="Depuis le début des Jeux Olympiques")
+
+
+```
+Comme on pouvait s'y attendre, le nombre de médailles suivant la taille a une allure de distribussion gaussienne. La taille des hommes où le pic du nombre de médailles gagnées est le plus important est à 1m80 pour 941 médailles. Chez les femmes, le pic est à 1m70, pour 535 médailles.
+Ces tailles correspondent bien à des tailles normales pour des hommes et des femmes. D'autre part, on visualise, par l'allure des courbes par sexe, que les femmes sont généralement plus petites que les hommes
 
 ## 1.3
-
-
 
 
 
