@@ -9,11 +9,12 @@ source(file="preprocessing.R")
 str(olympic_dataset)
 
 #keep only data from 1980 till now (10 olympic games)
-olympic_dataset = olympic_dataset[olympic_dataset$'Year' >= 1980,]
+#olympic_dataset = olympic_dataset[olympic_dataset$'Year' >= 1980,]
+
 olympic_dataset = left_join(olympic_dataset, noc_dataset, by= c('NOC'))
 
 # filter PIB dataset 
-PIBdata<-PIB_dataset[,c("region","Year","PIB")]
+PIBdata<-PIB_datasetFULL[,c("region","Year","PIB")]
 #CHANGE REGION NAME BY HAND ...
 # Remarq : we must change factors to be able to change a Region value !!!
 levels <- levels(PIBdata$region)
@@ -41,15 +42,8 @@ PIBdata$region[PIBdata$region=='United Kingdom']<- 'UK'
 
 
 # Add PIB Value (Gross Domestic Product GDP )
-<<<<<<< HEAD
 # ATTENTION, les noms des pays (Team) dans PIBdata sont un peu différent que ceux dans olympic_dataset 
 #Par exemple : dans PIBdata, on a USA alors qu'on a Unighted States dans olympic dataset 
-=======
-#TODO !!!! 
-# ATTENTION, les noms des pays (Team) dans PIBdata sont un peu diff?rent que ceux dans olympic_dataset 
-#Par exemple : dans PIBdata, on a USA alors qu'on a Unighted States dans olympic dataset 
-#? G?rer ? la main !!!
->>>>>>> 0a2422f8fde2b296f950772f6a7e08966d1a815c
 #olympic_dataset = left_join(olympic_dataset, PIBdata, by=c('region','Year'))
 
 # Factor for Year column
@@ -83,7 +77,7 @@ t+labs(x="Regions", y="Gold medals", title = "Top 20 regions that won Gold medal
 #*************************************************************
 
 # GOALS : see if the height of athletes has an influence of winning medals
-# ranger par ordre d?croissant de taille les athletes
+# ranger par ordre décroissant de taille les athletes
 olympic_dataset <- drop_na(olympic_dataset, Height)
 medals_per_height <- ddply(olympic_dataset,
                            .(Height, Sex),
@@ -120,9 +114,42 @@ ggplot(data=medals_per_height_year,aes(Height, Medals, group=Year))+geom_col(pos
 #+geom_boxplot()
 #ggplot(data=medals_mean_height,aes(mean_height, Medals, group=Year))+geom_col(position="dodge",aes(fill=Year))
 
+#**************************************************************************************************
+#GOAL : top winners in seummer/in winter
+
+medals_in_summer <- ddply(filter(olympic_dataset,Season == 'Summer'),
+                                .(region),
+                                function(x){
+                                  medals <- sum(x$Medal=="Gold" | x$Medal=="Sylver" | x$Medal =="Bronze")
+                                  data.frame(Medals= medals)
+                                }  )
+str(medals_in_summer)
+medals_in_summer <- top_n(arrange(medals_in_summer, desc(Medals)),10,Medals)
+medals_in_summer$region <- factor(medals_in_summer$region, levels = medals_in_summer$region[order(desc(medals_in_summer$Medals))])
+t<- ggplot(data=medals_in_summer,aes(region, Medals))+geom_col(position="dodge",aes(fill=region))
+t+labs(x="Regions", y="Sum Medals", title = "Top 10 regions that won the most medals in Summer")+ guides(fill="none")
+
+
+
+medals_in_winter <- ddply(filter(olympic_dataset,Season == 'Winter'),
+                          .(region),
+                          function(x){
+                            medals <- sum(x$Medal=="Gold" | x$Medal=="Sylver" | x$Medal =="Bronze")
+                            data.frame(Medals= medals)
+                          }  )
+str(medals_in_winter)
+medals_in_winter <- top_n(arrange(medals_in_winter, desc(Medals)),10,Medals)
+medals_in_winter$region <- factor(medals_in_winter$region, levels = medals_in_winter$region[order(desc(medals_in_winter$Medals))])
+
+t<- ggplot(data=medals_in_winter,aes(region, Medals))+geom_col(position="dodge",aes(fill=region))
+t+labs(x="Regions", y="Sum Medals", title = "Top 10 regions that won the most medals in Winter")+ guides(fill="none")
+
+# Seulement 3 pays sont dans le top 10 (top 5) en été ET en hiver : la Russie, l'Allemagne, les USA
+
+
 #************************************************************************
 # GOAL : See if ther is correlation between PIB and maw medals 
-medal_per_country_80 <- ddply(filter(olympic_dataset,olympic_dataset$Year=="1980"), 
+medal_per_country_92 <- ddply(filter(olympic_dataset,olympic_dataset$Year=="1992"), 
                            .(region), 
                            function(x){
                                 gold<- sum(x$Medal=="Gold")
@@ -132,18 +159,20 @@ medal_per_country_80 <- ddply(filter(olympic_dataset,olympic_dataset$Year=="1980
                            }  )
 
 
-medal_per_country_80 <- arrange(medal_per_country_80, desc(Medals))
-medal_per_country_80 = left_join(medal_per_country_80, filter(PIBdata,PIBdata$Year=="1980"), by=c('region'))
-top3 <- top_n(medal_per_country_80,3, Medals)
+medal_per_country_92 <- arrange(medal_per_country_92, desc(Medals))
+medal_per_country_92 <- left_join(medal_per_country_92, filter(PIBdata,PIBdata$Year=="1992"), by=c('region'))
+top1992 <- top_n(medal_per_country_92,10, Medals)
 
-top3['region'] <- lapply(top3['region'], factor)
+top1992['region'] <- lapply(top1992['region'], factor)
 
 #display NOC with gold medals over the past 10 olympics games
-t <- ggplot(data=top3, aes(region, PIB)) + geom_col(aes(fill=region)) + guides(fill="none")
-t+labs(x="Regions", y="Sum Medals", title = "Top 3 regions that won the most medals 1980")
+t <- ggplot(data=top1992, aes(region, PIB)) + geom_col(aes(fill=region)) + guides(fill="none")
+t+labs(x="Regions", y="Sum Medals", title = "Top 10 regions that won the most medals 1990")
 #x= reorder(NOC,-Gold), y = Gold)
 #ggplot(top_medal, aes(x = reorder(NOC, -Total), y = Total)) + geom_bar(stat="identity", aes(fill=NOC)) + coord_flip()
 # TODO : faire un graphe avec chaque top 3 en fonction du PIB de 1980 ? 2016
+
+# REMARQUE : en 1980, c'était surtout des pays de l'europede l'est et du nord qui gagnaient. 
 
 
 #******************************************************************
@@ -190,6 +219,50 @@ t+labs(x="Year", y="PIB", title = "PIB evolution over 1980 to 2016 of top 10 win
 # Rank : 1 USA, 2 Germany, 3 UK, 4 Russia, 5 China, 6 France, 7 Australia, 8 Italy, 9 canada, 10 Japan
 
 #*****************************************************************
+# GOAL : influence des guerres 
+# constat : pas de JO pendant les guerres mondiales
+medals1968 <- ddply(filter(olympic_dataset,olympic_dataset$Year=="1968"), 
+                              .(region), 
+                              function(x){
+                                gold<- sum(x$Medal=="Gold")
+                                silver<- sum(x$Medal =="Silver")
+                                bronze<- sum(x$Medal =="Bronze")
+                                data.frame(Medals=gold+bronze+silver)
+                              }  )
+
+medalsTot <- ddply(olympic_dataset,
+                    .(Year, region),
+                    function(x){
+                      gold<- sum(x$Medal=="Gold")
+                      silver<- sum(x$Medal =="Silver")
+                      bronze<- sum(x$Medal =="Bronze")
+                      data.frame(Medals=gold+bronze+silver)
+                    })
+medalsMean <-ddply(medalsTot,
+                   .(region),
+                   summarize, Mean= mean(Medals))
+
+medals1968 <- arrange(medals1968, desc(Medals))
+top10_68 <- top_n(medals1968,10, Medals)
+top10_68[nrow(top10_68)+1,]<- filter(medalsMean, medalsMean$region=="France")
+levels <- levels(top10_68$region)
+levels[length(levels)+1]<- 'France Mean'
+top10_68$region<- factor(top10_68$region, levels = levels)
+top10_68[nrow(top10_68),]$region <- "France Mean"
+#top10_68
+
+t <- ggplot(data=top10_68, aes(region, Medals )) + geom_col(aes(fill=region)) + guides(fill="none")
+t+labs(x="Regions", y="Medals", title = "Top 10 regions that won the most medals in 1968")
+
+# On voit ici que France est bien en dessous de sa moyenne.
+# TODO : justifier pour d'autres événements et on peut se permettre de ne présenter que france et france Mean.
+# Italie 1936
+# Algérie 1956
+# chine 1952
+# Portugal 1972
+# Egypte 1980
+
+#******************************************************************
 #GOAL : set a column of country rank of PIB
 # TODO
 
