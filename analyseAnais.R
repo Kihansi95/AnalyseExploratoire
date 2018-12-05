@@ -14,7 +14,7 @@ str(olympic_dataset)
 olympic_dataset = left_join(olympic_dataset, noc_dataset, by= c('NOC'))
 
 # filter PIB dataset 
-PIBdata<-PIB_datasetFULL[,c("region","Year","PIB")]
+PIBdata<-PIB_dataset[,c("region","Year","PIB")]
 #CHANGE REGION NAME BY HAND ...
 # Remarq : we must change factors to be able to change a Region value !!!
 levels <- levels(PIBdata$region)
@@ -75,7 +75,6 @@ t+labs(x="Regions", y="Gold medals", title = "Top 20 regions that won Gold medal
 #ggplot(top_medal, aes(x = reorder(NOC, -Total), y = Total)) + geom_bar(stat="identity", aes(fill=NOC)) + coord_flip()
 
 #*************************************************************
-
 # GOALS : see if the height of athletes has an influence of winning medals
 # ranger par ordre décroissant de taille les athletes
 olympic_dataset <- drop_na(olympic_dataset, Height)
@@ -86,8 +85,16 @@ medals_per_height <- ddply(olympic_dataset,
                              data.frame(Medals= medals)
                            }  )
 
+max(medals_per_height$Medals)
+filter(medals_per_height, medals_per_height$Medals == 941)
+
+max(filter(medals_per_height, medals_per_height$Sex == "F")$Medals)
+filter(medals_per_height, medals_per_height$Medals == 535 & medals_per_height$Sex=="F")
+
 # display medals depending of height.                         
-t<- ggplot(data=medals_per_height,aes(Height, Medals))+geom_col(position="dodge", aes(fill=Sex))
+t <-ggplot(data=medals_per_height, aes(Height,Medals))+geom_col(position="dodge", aes(fill=Sex))
+
+#+ stat_function(fun = dnorm, n = 10, args = list(mean = 180, sd = 10))
 #+geom_line(data = medals_per_height,aes(x=Height, y=Medals))
 t+labs(x="Height", y="Total Medals (Gold, Silver, Bronze)", title = "Total number of medals won by Athletes depending on their Height", subtitle="over the past 10 Olympic Games")
 
@@ -97,25 +104,29 @@ t+labs(x="Height", y="Total Medals (Gold, Silver, Bronze)", title = "Total numbe
 #*****************************************************************
 # GOAL : idem but we will see if there is an evolution over the years
 
-# GOALS : see if the height of athletes has an influence of winning medals
-# ranger par ordre d?croissant de taille les athletes
-#filter(olympic_dataset,Height>=160 & Height <=190)
-medals_per_height_year <- ddply(filter(olympic_dataset,Height>=160 & Height <=200),
-                           .(Height, Year, Sex),
+medals_year <- ddply(olympic_dataset,
+                           .(Year, Sex),
                            function(x){
                              medals <- sum(x$Medal=="Gold" | x$Medal=="Sylver" | x$Medal =="Bronze")
                              data.frame(Medals= medals)
                            }  )
-str(medals_per_height_year)
 
-# display medals depending of height and year.                         
-ggplot(data=medals_per_height_year,aes(Height, Medals, group=Year))+geom_col(position="dodge",aes(fill=Year))
-#+stat_ydensity()
-#+geom_boxplot()
-#ggplot(data=medals_mean_height,aes(mean_height, Medals, group=Year))+geom_col(position="dodge",aes(fill=Year))
+# treat the case of winter and summer that are separate after 1992.
+medals_year$Year[medals_year$Year=="1994"]<- "1992"
+medals_year$Year[medals_year$Year=="1998"]<- "1996"
+medals_year$Year[medals_year$Year=="2002"]<- "2000"
+medals_year$Year[medals_year$Year=="2006"]<- "2004"
+medals_year$Year[medals_year$Year=="2010"]<- "2008"
+medals_year$Year[medals_year$Year=="2014"]<- "2012"
+
+ggplot(medals_year,aes(Year, Medals, group=Sex))+geom_col(position="dodge",aes(fill=Sex))+
+  labs(x="Années", y="Total Medailles", title = "Evolution du nombre de médailles gagnées par sexe")
+
+homme_femme <- ddply(olympic_dataset, .(Year), function(x){ data.frame(Proportion = sum(x$Sex=="F")/(sum(x$Sex=="F")+sum(x$Sex=="M")))})
+
 
 #**************************************************************************************************
-#GOAL : top winners in seummer/in winter
+#GOAL : top winners in summer/in winter
 
 medals_in_summer <- ddply(filter(olympic_dataset,Season == 'Summer'),
                                 .(region),
@@ -140,40 +151,42 @@ medals_in_winter <- ddply(filter(olympic_dataset,Season == 'Winter'),
 str(medals_in_winter)
 medals_in_winter <- top_n(arrange(medals_in_winter, desc(Medals)),10,Medals)
 medals_in_winter$region <- factor(medals_in_winter$region, levels = medals_in_winter$region[order(desc(medals_in_winter$Medals))])
-
-t<- ggplot(data=medals_in_winter,aes(region, Medals))+geom_col(position="dodge",aes(fill=region))
-t+labs(x="Regions", y="Sum Medals", title = "Top 10 regions that won the most medals in Winter")+ guides(fill="none")
-
 # Seulement 3 pays sont dans le top 10 (top 5) en été ET en hiver : la Russie, l'Allemagne, les USA
 
 
-#************************************************************************
-# GOAL : See if ther is correlation between PIB and maw medals 
-medal_per_country_92 <- ddply(filter(olympic_dataset,olympic_dataset$Year=="1992"), 
-                           .(region), 
-                           function(x){
-                                gold<- sum(x$Medal=="Gold")
-                                silver<- sum(x$Medal =="Silver")
-                                bronze<- sum(x$Medal =="Bronze")
-                             data.frame(Medals=gold+bronze+silver)
-                           }  )
+# **************************************************************************************************************************
+# GOAL : étudier l'évolution PIB des pays gagnant
+
+# Medailles/region, toutes années confondues
+t<- ggplot(data=medals_in_winter,aes(region, Medals))+geom_col(position="dodge",aes(fill=region))
+t+labs(x="Regions", y="Sum Medals", title = "Top 10 regions that won the most medals in Winter")+ guides(fill="none")
 
 
-medal_per_country_92 <- arrange(medal_per_country_92, desc(Medals))
-medal_per_country_92 <- left_join(medal_per_country_92, filter(PIBdata,PIBdata$Year=="1992"), by=c('region'))
-top1992 <- top_n(medal_per_country_92,10, Medals)
 
-top1992['region'] <- lapply(top1992['region'], factor)
+medals_region<- ddply(olympic_dataset,
+                          .(region),
+                          function(x){
+                            medals <- sum(x$Medal=="Gold" | x$Medal=="Sylver" | x$Medal =="Bronze")
+                            data.frame(Medals= medals)
+                          }  )
+medals_region<- top_n(arrange(medals_region, desc(Medals)),10,Medals)
+medals_region$region <- factor(medals_region$region, levels = medals_region$region[order(desc(medals_region$Medals))])
+t<- ggplot(data=medals_region,aes(region, Medals))+geom_col(position="dodge",aes(fill=region))
+t+labs(x="Regions", y="Sum Medals", title = "Top 10 regions that won the most medals")+ guides(fill="none")
 
-#display NOC with gold medals over the past 10 olympics games
-t <- ggplot(data=top1992, aes(region, PIB)) + geom_col(aes(fill=region)) + guides(fill="none")
-t+labs(x="Regions", y="Sum Medals", title = "Top 10 regions that won the most medals 1990")
 #x= reorder(NOC,-Gold), y = Gold)
 #ggplot(top_medal, aes(x = reorder(NOC, -Total), y = Total)) + geom_bar(stat="identity", aes(fill=NOC)) + coord_flip()
 # TODO : faire un graphe avec chaque top 3 en fonction du PIB de 1980 ? 2016
 
-# REMARQUE : en 1980, c'était surtout des pays de l'europede l'est et du nord qui gagnaient. 
+# OU ALORS : afficher l'avolution du PIB et donner les rangs des pays chaque année
 
+# REMARQUE : en 1980, c'était surtout des pays de l'europ ede l'est et du nord qui gagnaient. 
+
+PIBtop10medals<-filter(PIBdata,PIBdata$region %in% medals_region$region)
+PIBtop10medals <- arrange(filter(PIBtop10medals, PIBtop10medals$Year >= "1968"), Year)
+#t<-
+ggplot(data=PIBtop10medals,aes(Year, PIB, group=region))+geom_line(aes(color=region), size=1)
+t+labs(x="Regions", y="PIB", title = "PIB evolution of Top 10 regions that won the most medals")
 
 #******************************************************************
 # GOAL : see PIB of top 10 country in 2016
