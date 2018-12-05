@@ -4,6 +4,7 @@ library(stringr)
 
 library(dplyr)      # NB: place after plyr for being sure it will override some methods
 library(tidyr)
+library(RColorBrewer)
 
 source(file="preprocessing_tibble.R")
 str(olympic_dataset)
@@ -43,7 +44,7 @@ olympic_dataset %>%
     filter(NOC == "USA", Medal != 'None') %>%
     ddply(c("Year"), summarise, Total_medal = n()) %>%
     ggplot(aes(x = Year, y = Total_medal)) + 
-    geom_bar(stat = "identity") +
+    geom_bar(stat = "identity", fill="Sydney") +
     geom_smooth() +
     labs(x="Year", y="Medal Number", title = "Investigate in USA's performance")
 
@@ -57,6 +58,18 @@ olympic_dataset %>%
     geom_bar(stat = "identity", fill="steelblue") + 
     #geom_smooth() +
     labs(x="Âge", y="Nomre de médaille", title = "Nombre de médaille selon l'âge de participants", subtitle='L\'âge le plus jeune est à 10')
+
+# Separate sex
+olympic_dataset %>%
+    count(Age, Medal, Sex) %>%
+    spread(Medal, n, fill=0) %>%
+    mutate(Total = Bronze + Gold + Silver) %>%
+    ggplot() + 
+    geom_bar(stat = "identity", position="dodge", aes(x = Age, y = Total, fill=Sex)) +
+    xlab("Age")+
+    ylab("Medal won") +
+    ggtitle("Chance a participant can win a medal")+
+    labs(subtitle="Le plus haute valeur, le mieux chance qu'on a. Valeur 1 veut dire que 100% le pays gagnera de médaille")
 
 # Medal quality by age
 olympic_dataset %>% 
@@ -104,7 +117,7 @@ medal_per_country <- olympic_dataset %>%
     )
 
 # Parameters
-alpha = mean(medal_per_country$Nb_participant)  # coef of performance
+alpha = max(medal_per_country$Nb_participant)  # coef of performance
 n = 20 # top n countries
 
 # Compute the performance and choose only the top n
@@ -115,9 +128,12 @@ medal_per_country = medal_per_country %>%
     arrange(desc(Performance)) %>%
     top_n(n)
 
-ggplot(medal_per_country, aes(x = NOC, y = Performance)) + 
-    geom_bar(stat = "identity") +
-    labs(x="Pays", y="Performance", title = "Chance d'avoir un médail pour un sportif", subtitle="Le plus haute valeur, le mieux chance qu'on a. Valeur 1 veut dire que 100% le pays gagnera de médaille")
+ggplot(medal_per_country, aes(x = reorder(NOC, -Performance), y = Performance)) + 
+    geom_bar(stat = "identity", aes(fill = Performance)) +
+    xlab("Pays")+
+    ylab("Performance") +
+    ggtitle("Chance d'avoir un médail pour un sportif")+
+    labs(subtitle="Le plus haute valeur, le mieux chance qu'on a. Valeur 1 veut dire que 100% le pays gagnera de médaille")
 
 # =========== Evolution ===========
 # Check out if countries start to recrute sportman at age 25
@@ -132,3 +148,8 @@ ggplot(age_evolution) +
 ggplot(age_evolution) + 
     geom_boxplot(aes(x = as.factor(Year), y = Age)) +
     labs(x="Age", y="Année", title = "Distribution d'age de participants", subtitle="De 1986 à 2016")
+
+## TODO: 
+# - penser à analyser l'effet summer / winter
+# - croiser avec les PIB
+# - plot en fonction de: (taille, age), radius = nombre de médaille

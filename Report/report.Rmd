@@ -72,6 +72,12 @@ olympic_dataset %>%
     labs(x="Âge en année", y="Nombre de médailles", title = "Qualité des médailles obtenues selon l'âge des athlètes")
 ```
 
+D'après le résultat, on constate que l'âge entre 20 et 27 sera le pique de maturité des sportifs. Cependant, cette induction est faite sur l'hypothèse où le nombre de participant ne joue pas en jeu. En effet, il peut arriver que l'on a beaucoup de participant à l'âge de 20 à 27, mais très peu entre eux ont gagné, alors que peut-être ceux qui sont plus âgés participe moins mais gagne plus.
+
+Pour vérifier notre hypothèse, on calcule la "Performance" des participant. L'indice de performance sera naïvement basé sur la probabilité d'un participant figurant dans telle catégorie a la chance de gagner un médaille ou pas. Formellement:
+
+
+
 ## 1.2 La taille entre-t-elle en question ?
 
 A travers l'étude suivante, on veut essayer de comprendre si la taille des athlètes est corrélées avec leur performance. On présente ici les médailles gagnées par les athlètes féminines et masculins en fonction de leur taille.
