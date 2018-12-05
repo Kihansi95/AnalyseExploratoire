@@ -98,13 +98,48 @@ ggplot(data=medals_per_height,aes(Height, Medals))+geom_col(position="dodge", ae
 Comme on pouvait s'y attendre, le nombre de médailles suivant la taille a une allure de distribussion gaussienne. La taille des hommes où le pic du nombre de médailles gagnées est le plus important est à 1m80 pour 941 médailles. Chez les femmes, le pic est à 1m70, pour 535 médailles.
 Ces tailles correspondent bien à des tailles normales pour des hommes et des femmes. D'autre part, on visualise, par l'allure des courbes par sexe, que les femmes sont généralement plus petites que les hommes
 
-## 1.3
 
 
-
-# 2.Problématique 2
+# 2.2eme axe : la situation économique et sociale, un impact sur les résultats nationaux
 
 ## 2.1 Présentation
+Premièrement, on peut noter que les Femmes ne sont autorisées à participer aux JO qu'à partir de la 7ème édition, en 1920. Jusqu'alors, seuls des hommes concourraient. 
+D'autre part, on constate que les éditions devant se dérouler pendant les guerres mondiales ont été annulées. C'est le cas en 1916, 1940 et 1944.
+
+A partir de ces 1eres constatations dans notre jeu de données, on peut se demander si les conflits qu'a rencontré un pays, a pu se constater dans une dégradation des résultats de l'édition à ce moment là.
+
+
+## 2.2 La croissance fulgurante des femmes
+Dans notre société actuelle, on aborde la place de la femme dans tous les domaines. On aborde surtout le problème de la différence de rémunération. Dans le graphe suivant, on peut observer l'évolution du nombre de médailles remportés respectivement par les hommes et les femmes, au cours des sessions olympiques.
+
+```{r women territory, echo=FALSE}
+medals_year <- ddply(olympic_dataset,
+                           .(Year, Sex),
+                           function(x){
+                             medals <- sum(x$Medal=="Gold" | x$Medal=="Sylver" | x$Medal =="Bronze")
+                             data.frame(Medals= medals)
+                           }  )
+
+# treat the case of winter and summer that are separate after 1992.
+medals_year$Year[medals_year$Year=="1994"]<- "1992"
+medals_year$Year[medals_year$Year=="1998"]<- "1996"
+medals_year$Year[medals_year$Year=="2002"]<- "2000"
+medals_year$Year[medals_year$Year=="2006"]<- "2004"
+medals_year$Year[medals_year$Year=="2010"]<- "2008"
+medals_year$Year[medals_year$Year=="2014"]<- "2012"
+
+ggplot(medals_year,aes(Year, Medals, group=Sex))+geom_col(position="dodge",aes(fill=Sex))+
+  labs(x="Années", y="Total Medailles", title = "Evolution du nombre de médailles gagnées par sexe")
+
+#proportion femme-homme parmis les athlètes
+homme_femme <- ddply(olympic_dataset, .(Year), function(x){ data.frame(Proportion = sum(x$Sex=="F")/(sum(x$Sex=="F")+sum(x$Sex=="M")))})
+
+
+```
+
+On retrouve l'absence de femmes aux JO avant les années 1920. 
+Mais ensuite, on remarque surtout la progression réalisée en terme de nombre de médailles gagnées par les femmes. Cela correspond à une évolution positive de la place de la femme notre société. Une femme pouvant participer et s'affirmer dans une compétition sportive est un signe de liberté et d'égalité. On notera aussi l'augmentation croissante de la proportion de femmes participants parmis les athlètes. De 3% en 1920, les femmes représentent 18% des athlètes en 1960, 39% en 2000. En 2016, elles représentaient 45% de la population d'athèles. 
+
 
 ## 2.2 Analyse
 
