@@ -19,6 +19,9 @@ olympic_dataset$Medal <- factor(olympic_dataset$Medal, levels = levels)   # refa
 # Not needed, it will complicate the situation
 olympic_dataset$Medal[is.na(olympic_dataset$Medal)] <- "None"             # replace NA with "None"
 
+separate(olympic_dataset, Games, c("Year_Games", "Season"), sep = " ")
+olympic_dataset$Year_Games <- NULL
+
 # Transform to factor
 factor_cols <- c('Sex', 'NOC', 'Medal', 'Sport')
 olympic_dataset[factor_cols] <- lapply(olympic_dataset[factor_cols], factor)

@@ -9,6 +9,10 @@ olympic_dataset <- read_csv("data/olympic-history-athletes-and-results/athlete_e
 # For athletes got NA medal, will receive "None" medal
 olympic_dataset$Medal[is.na(olympic_dataset$Medal)] <- "None"             # replace NA with "None"
 
+# Extract games into seasons
+separate(olympic_dataset, Games, c("Year_Games", "Season"), sep = " ")
+olympic_dataset$Year_Games <- NULL
+
 # Transform to factor
 # olympic_dataset$Medal <- as.factor(olympic_dataset$Medal)
 factor_cols <- c('Sex', 'NOC', 'Medal', 'Sport')

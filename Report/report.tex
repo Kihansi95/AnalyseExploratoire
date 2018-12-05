@@ -1,0 +1,251 @@
+\documentclass[11pt,]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Compte-Rendu du projet d'Analyse Exploratoire},
+            pdfauthor={Duc Hau NGUYEN; Anaïs RABARY},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Compte-Rendu du projet d'Analyse Exploratoire}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+  \subtitle{Des médailles aux JO !}
+  \author{Duc Hau NGUYEN; Anaïs RABARY}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{4 Décembre 2018}
+
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+\newpage
+
+\section{Introduction}\label{introduction}
+
+\subsection{Contexte}\label{contexte}
+
+Les Jeux Olympiques (JO) sont une compétition dont nous avons hérité de
+la Grèce Antique. On lit souvent que seuls les citoyens les plus riches
+pouvaient y participer. La trève olympique permettait à la civilisation
+d'oublier, le temps de 12 travaux, les guerres et troubles de l'époque.
+Après quelques maigres tentatives, c'est seulement depuis 1896 que les
+Jeux Olympiques modernes voient le jour, à Athènes.
+
+Dans le cadre du projet d'Analyse Exploratoire à l'INSA Toulouse, avec
+l'accompagnement de notre professeur Gilles Tredan, nous avons récupéré
+sur le site Kaggle un dataset sur ces Jeux Olympiques moderne. Ce
+dernier recense des informations sur tous les athlètes ayant participés
+aux JO, les médailles qu'ils ont gagnés, leur équipe, l'année de
+participation, etc. Suivant les axes explorés dans ce rapport et
+détaillés ci-après, nous avons eu besoin de croiser nos données avec des
+données sur le PIB des pays, issues de la source World Wide Data.
+
+Sauf précision contraire, les données sont exploitées ici dans leur
+totalité, depuis la création des Jeux Olympiques modernes (1896).
+Suivant l'analyse, les données incomplètes seront traitées différemment.
+Ces choix seront justifiés si nécessaire.
+
+\subsection{Problématique}\label{problematique}
+
+Les Jeux Olympics sont devenus le symbole de la force physique et
+mentale de l'être humain. C'est l'occasion pour que les élites de chaque
+pays se réunissent et montrent leurs spectaculaires performances. D'un
+autre côté, ces rencontres sont un sujet intéressant pour les
+scientifiques : Le dernier sciècle a prédit que l'humain atteindra
+bientôt ses limites physiques, tandis que l'on voit toujours aujourd'hui
+des sportifs continuer d'établir de nouveaux records.
+
+Avec plusieurs centaines d'années d'existance des JO, l'humanité a
+identifié quelques facteurs optimisant la performance physique.
+L'historique des JO pourraient surement fournir une indication à la
+question: Quels sont les facteurs qui influent/optimisent la performance
+physiques dans les JO ?
+
+On peut aussi se demander quelle est l'influence de la richesse d'un
+pays et de sa situation sociale sur les performances aux Jeux
+olympiques.
+
+Dans cette étude, on analyse ces problématiques via les grandes axes
+suivant : les caractéristiques physiques des participants, leur âge,les
+performances de chaque équipe nationale, la richesse de chaque pays.
+Certains axes nous mènent à analyser des phénomènes particuliers.
+D'autres nous demandent une étude supplémentaire pour mieux les
+comprendre.
+
+\section{1. Premièr axe: Les caractéristiques physiques des athlètes
+inflencent leur
+performance}\label{premier-axe-les-caracteristiques-physiques-des-athletes-inflencent-leur-performance}
+
+\subsection{1.1 l'âge optimise la
+performance}\label{lage-optimise-la-performance}
+
+L'approche naïve permet ici de présenterle nombre de médailles que
+chaque tranche d'âge a pu obtenir, quelque soit l'année des Jeux. La
+performance est mesurée ici en fonction du nombre de médailles gagnées
+ainsi qu'en fonction de la ``couleur'' de la médaille. C'est en effet un
+bon indicteur pour discriminer les performances entre les athlètes sur
+le podium et ceux n'ayant pas remporté de médaille.
+
+\includegraphics{report_files/figure-latex/qual_medal_age-1.pdf}
+
+D'après le résultat, on constate que l'âge entre 20 et 27 sera le pique
+de maturité des sportifs. Cependant, cette induction est faite sur
+l'hypothèse où le nombre de participant ne joue pas en jeu. En effet, il
+peut arriver que l'on a beaucoup de participant à l'âge de 20 à 27, mais
+très peu entre eux ont gagné, alors que peut-être ceux qui sont plus
+âgés participe moins mais gagne plus.
+
+Pour vérifier notre hypothèse, on calcule la ``Performance'' des
+participant. L'indice de performance sera naïvement basé sur la
+probabilité d'un participant figurant dans telle catégorie a la chance
+de gagner un médaille ou pas. Formellement:
+
+\(Performance = \frac{#Medal}{#Participant} = \frac{\sum(Gold + Silver + Bronze)}{\sum(all)}\)
+
+\subsection{1.2 La taille entre-t-elle en question
+?}\label{la-taille-entre-t-elle-en-question}
+
+A travers l'étude suivante, on veut essayer de comprendre si la taille
+des athlètes est corrélées avec leur performance. On présente ici les
+médailles gagnées par les athlètes féminines et masculins en fonction de
+leur taille.
+
+\includegraphics{report_files/figure-latex/medals_height-1.pdf} Comme on
+pouvait s'y attendre, le nombre de médailles suivant la taille a une
+allure de distribussion gaussienne. La taille des hommes où le pic du
+nombre de médailles gagnées est le plus important est à 1m80 pour 941
+médailles. Chez les femmes, le pic est à 1m70, pour 535 médailles. Ces
+tailles correspondent bien à des tailles normales pour des hommes et des
+femmes. D'autre part, on visualise, par l'allure des courbes par sexe,
+que les femmes sont généralement plus petites que les hommes
+
+\section{2.2eme axe : la situation économique et sociale, un impact sur
+les résultats
+nationaux}\label{eme-axe-la-situation-economique-et-sociale-un-impact-sur-les-resultats-nationaux}
+
+\subsection{2.1 Présentation}\label{presentation}
+
+Premièrement, on peut noter que les Femmes ne sont autorisées à
+participer aux JO qu'à partir de la 7ème édition, en 1920. Jusqu'alors,
+seuls des hommes concourraient. D'autre part, on constate que les
+éditions devant se dérouler pendant les guerres mondiales ont été
+annulées. C'est le cas en 1916, 1940 et 1944.
+
+A partir de ces 1eres constatations dans notre jeu de données, on peut
+se demander si les conflits qu'a rencontré un pays, a pu se constater
+dans une dégradation des résultats de l'édition à ce moment là.
+
+\subsection{2.2 La croissance fulgurante des
+femmes}\label{la-croissance-fulgurante-des-femmes}
+
+Dans notre société actuelle, on aborde la place de la femme dans tous
+les domaines. On aborde surtout le problème de la différence de
+rémunération. Dans le graphe suivant, on peut observer l'évolution du
+nombre de médailles remportés respectivement par les hommes et les
+femmes, au cours des sessions olympiques.
+
+\includegraphics{report_files/figure-latex/women territory-1.pdf}
+
+On retrouve l'absence de femmes aux JO avant les années 1920. Mais
+ensuite, on remarque surtout la progression réalisée en terme de nombre
+de médailles gagnées par les femmes. Cela correspond à une évolution
+positive de la place de la femme notre société. Une femme pouvant
+participer et s'affirmer dans une compétition sportive est un signe de
+liberté et d'égalité. On notera aussi l'augmentation croissante de la
+proportion de femmes participants parmis les athlètes. De 3\% en 1920,
+les femmes représentent 18\% des athlètes en 1960, 39\% en 2000. En
+2016, elles représentaient 45\% de la population d'athèles.
+
+\subsection{2.2 Analyse}\label{analyse}
+
+\subsection{2.3 Résultats}\label{resultats}
+
+\section{3.Problématique 3}\label{problematique-3}
+
+\subsection{3.1 Présentation}\label{presentation-1}
+
+\subsection{3.2 Analyse}\label{analyse-1}
+
+\subsection{3.3 Résultats}\label{resultats-1}
+
+\section{Conclusion}\label{conclusion}
+
+\section{References}\label{references}
+
+
+\end{document}

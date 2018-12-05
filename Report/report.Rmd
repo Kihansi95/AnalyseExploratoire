@@ -64,7 +64,7 @@ Dans cette étude, on analyse ces problématiques via les grandes axes suivant :
 ## 1.1 l'âge optimise la performance
 L'approche naïve permet ici de présenterle nombre de médailles que chaque tranche d'âge a pu obtenir, quelque soit l'année des Jeux. La performance est mesurée ici en fonction du nombre de médailles gagnées ainsi qu'en fonction de la "couleur" de la médaille. C'est en effet un bon indicteur pour discriminer les performances entre les athlètes sur le podium et ceux n'ayant pas remporté de médaille. 
 
-```{r qual_medal_age, echo=FALSE}
+```{r qual_medal_age, echo=FALSE, warning=FALSE}
 olympic_dataset %>% 
     count(Age, Medal) %>%
     subset(Medal != "None") %>%
@@ -76,14 +76,14 @@ D'après le résultat, on constate que l'âge entre 20 et 27 sera le pique de ma
 
 Pour vérifier notre hypothèse, on calcule la "Performance" des participant. L'indice de performance sera naïvement basé sur la probabilité d'un participant figurant dans telle catégorie a la chance de gagner un médaille ou pas. Formellement:
 
-
+$Performance = \frac{#Medal}{#Participant} = \frac{\sum(Gold + Silver + Bronze)}{\sum(all)}$
 
 ## 1.2 La taille entre-t-elle en question ?
 
 A travers l'étude suivante, on veut essayer de comprendre si la taille des athlètes est corrélées avec leur performance. On présente ici les médailles gagnées par les athlètes féminines et masculins en fonction de leur taille.
 
 
-```{r medals_height, echo=FALSE}
+```{r medals_height, echo=FALSE, warning=FALSE}
 olympic_dataset <- drop_na(olympic_dataset, Height)
 medals_per_height <- ddply(olympic_dataset,
                            .(Height, Sex),
