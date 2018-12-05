@@ -76,7 +76,34 @@ D'après le résultat, on constate que l'âge entre 20 et 27 sera le pique de ma
 
 Pour vérifier notre hypothèse, on calcule la "Performance" des participant. L'indice de performance sera naïvement basé sur la probabilité d'un participant figurant dans telle catégorie a la chance de gagner un médaille ou pas. Formellement:
 
-$Performance = \frac{#Medal}{#Participant} = \frac{\sum(Gold + Silver + Bronze)}{\sum(all)}$
+$Performance = \frac{\#Medal}{\#Participant} = \frac{\sum(Gold + Silver + Bronze)}{\sum(all)}$
+
+Cette formule n'est pas adaptatif lors qu'on a qu'un seul participant et lui il gagne du médaille, la probabilité sera à 100%
+
+```{r perf_medal_age, echo=FALSE, warning=FALSE}
+medal_per_age <- olympic_dataset %>%
+    count(Age, Medal) %>%
+    spread(Medal, n, fill=0) %>%
+    mutate(
+        Nb_participant = Bronze + Gold + Silver + None,
+        Nb_medal = Bronze + Gold + Silver
+    )
+
+medal_per_age = medal_per_age %>%
+    mutate(
+        Performance = (Nb_medal / Nb_participant)
+    )
+
+ggplot(medal_per_age, aes(x = Age, y = Performance)) + 
+    geom_bar(stat = "identity", aes(fill = Performance)) + 
+    coord_cartesian(xlim=c(10, 75))  +
+    xlab("Age")+
+    ylab("Performance") +
+    ggtitle("Chance d'avoir un médail pour un sportif")+
+    labs(subtitle="Le plus haute valeur, le mieux chance qu'on a. Valeur 1 veut dire que 100% le pays gagnera de médaille")
+```
+
+Comme cela dit, nous obtenons 100% pour l'âge de 10 alors qu'on a qu'un seul cas : Dimitrios Loundras en 1896. Considérons ces pertubations comme un bruit, on "nettoie" les catégorie d'âge qui n'ont pas "suffisamment" d'observation.
 
 ## 1.2 La taille entre-t-elle en question ?
 
