@@ -221,6 +221,20 @@ t+labs(x="Year", y="PIB", title = "PIB evolution over 1980 to 2016 of top 10 win
 #*****************************************************************
 # GOAL : influence des guerres 
 # constat : pas de JO pendant les guerres mondiales
+
+
+medalsTot <- ddply(olympic_dataset,
+                   .(Year, region),
+                   function(x){
+                     gold<- sum(x$Medal=="Gold")
+                     silver<- sum(x$Medal =="Silver")
+                     bronze<- sum(x$Medal =="Bronze")
+                     data.frame(Medals=gold+bronze+silver)
+                   })
+medalsMean <-ddply(medalsTot,
+                   .(region),
+                   summarize, Mean= mean(Medals))
+
 medals1968 <- ddply(filter(olympic_dataset,olympic_dataset$Year=="1968"), 
                               .(region), 
                               function(x){
@@ -230,17 +244,6 @@ medals1968 <- ddply(filter(olympic_dataset,olympic_dataset$Year=="1968"),
                                 data.frame(Medals=gold+bronze+silver)
                               }  )
 
-medalsTot <- ddply(olympic_dataset,
-                    .(Year, region),
-                    function(x){
-                      gold<- sum(x$Medal=="Gold")
-                      silver<- sum(x$Medal =="Silver")
-                      bronze<- sum(x$Medal =="Bronze")
-                      data.frame(Medals=gold+bronze+silver)
-                    })
-medalsMean <-ddply(medalsTot,
-                   .(region),
-                   summarize, Mean= mean(Medals))
 
 medals1968 <- arrange(medals1968, desc(Medals))
 top10_68 <- top_n(medals1968,10, Medals)

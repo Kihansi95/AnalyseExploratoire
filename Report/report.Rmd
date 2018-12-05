@@ -25,11 +25,18 @@ library(readr)
 
 ```{r dataset, echo=FALSE}
 # le code n'affichera pas si echo = false
-olympic_dataset <- read_csv("../data/olympic-history-athletes-and-results/athlete_events.csv")
+# j'ai changé le read to read.csv2 
+#car sinon on avait un affichage des colonnes parsées dans le rapport
+olympic_dataset <- read.csv2("../data/olympic-history-athletes-and-results/athlete_events.csv", sep=",", dec=".")
+levels <- levels(olympic_dataset$Medal)
+levels[length(levels) + 1]  <- "None"                                     
+olympic_dataset$Medal <- factor(olympic_dataset$Medal, levels = levels)
 olympic_dataset$Medal[is.na(olympic_dataset$Medal)] <- "None"
 factor_cols <- c('Sex', 'NOC', 'Medal', 'Sport')
 olympic_dataset[factor_cols] <- lapply(olympic_dataset[factor_cols], factor)
 ```
+
+\newpage
 
 # Introduction 
 
@@ -37,34 +44,36 @@ olympic_dataset[factor_cols] <- lapply(olympic_dataset[factor_cols], factor)
 Les Jeux Olympiques (JO) sont une compétition dont nous avons hérité de la Grèce Antique. On lit souvent que seuls les citoyens les plus riches pouvaient y participer. La trève olympique permettait à la civilisation d'oublier, le temps de 12 travaux, les guerres et troubles de l'époque.
 Après quelques maigres tentatives, c'est seulement depuis 1896 que les Jeux Olympiques modernes voient le jour, à Athènes.
 
-Dans le cadre du projet d'Analyse Exploratoire à l'INSA Toulouse, avec l'accompagnement de notre professeur Gilles Tredan, nous avons récupéré sur le site Kaggle un dataset sur ces Jeux Olympiques moderne. Ce dernier recense des informations sur tous les athlètes ayant participés aux JO, les médailles qu'ils ont gagnés, leur équipe, l'année de participation, ...
+Dans le cadre du projet d'Analyse Exploratoire à l'INSA Toulouse, avec l'accompagnement de notre professeur Gilles Tredan, nous avons récupéré sur le site Kaggle un dataset sur ces Jeux Olympiques moderne. Ce dernier recense des informations sur tous les athlètes ayant participés aux JO, les médailles qu'ils ont gagnés, leur équipe, l'année de participation, etc. Suivant les axes explorés dans ce rapport et détaillés ci-après, nous avons eu besoin de croiser nos données avec des données sur le PIB des pays, issues de la source World Wide Data.
+
+Sauf précision contraire, les données sont exploitées ici dans leur totalité, depuis la création des Jeux Olympiques modernes (1896). Suivant l'analyse, les données incomplètes seront traitées différemment. Ces choix seront justifiés.
 
 ## Problématique
 
-Les Jeux Olympics sont devenus le symbol de la force physique et mentale de l'être humain. C'est l'occasion pour que les élites de chaque pays se réunissent et montrent leurs spectaculaires performances. D'un autre côté, ces occasions qualifiées de spectaculaires sont un sujet intéressant pour des scientifiques : Le dernier sciècle a prédit que l'humain atteindra bientôt ses limites physiques, tandis que l'on voittoujours aujourd'hui des sportifs continuer d'établir de nouveaux records.
+Les Jeux Olympics sont devenus le symbole de la force physique et mentale de l'être humain. C'est l'occasion pour que les élites de chaque pays se réunissent et montrent leurs spectaculaires performances. D'un autre côté, ces rencontres sont un sujet intéressant pour les scientifiques : Le dernier sciècle a prédit que l'humain atteindra bientôt ses limites physiques, tandis que l'on voit toujours aujourd'hui des sportifs continuer d'établir de nouveaux records.
 
 Avec plusieurs centaines d'années d'existance des JO, l'humanité a identifié quelques facteurs optimisant la performance physique. L'historique des JO pourraient surement fournir une indication à la question: Quels sont les facteurs qui influent/optimisent la performance physiques dans les JO ?
 
-Pour établir une étude d'exploration sur ce problème, il est nécessaire de croiser nos données avec des données de la source World Wide Data, sur les PIB des pays (...) (cf. dans biblio). 
+On peut aussi se demander quelle est l'influence de la richesse d'un pays et de sa situation sociale sur les performances aux Jeux olympiques.
 
-Par la suite de l'étude, on analyse sur les grandes axes: caratéristique de pays, les mesures physiques de participants, leur ages, ... (TODO). Chaque axes nous mène à analyser des phénomènes particuliers ou nous demande une étude supplémentaire pour justifier.
+Dans cette étude, on analyse ces problématiques via les grandes axes suivant : les charactéristiques physiques des participants, leur âge,les performances de chaque équipe nationale, la richesse de chaque pays. Certains axes nous mènent à analyser des phénomènes particuliers. D'autres nous demandent une étude supplémentaire pour mieux les comprendre.
 
-# 1. Première axe: l'âge qui optimise la performance
+# 1. Premièr axe: l'âge optimise la performance
 
 ## 1.1 Étude préliminaire
-L'approche naïve sera d'analyser le nombre de médailles que chaque âge a pu obtenir, quelque soit l'année des Jeux.
+L'approche naïve permet ici de présenterle nombre de médailles que chaque tranche d'âge a pu obtenir, quelque soit l'année des Jeux.
 
-```{r qual_medal_age}
+```{r qual_medal_age, echo=FALSE}
 olympic_dataset %>% 
     count(Age, Medal) %>%
     subset(Medal != "None") %>%
     ggplot(aes(x = Age, y = n, fill = Medal)) + geom_bar(stat = "identity") +
-    labs(x="Âge", y="Nomre de médaille", title = "Qualité de médaille selon l'âge")
+    labs(x="Âge", y="Nombre de médailles", title = "Qualité des médailles obtenues selon l'âge des athlètes")
 ```
 
-## 1.2 Analyse
+## 1.2
 
-## 1.3 Résultats
+## 1.3
 
 
 
@@ -90,27 +99,5 @@ olympic_dataset %>%
 
 
 # Conclusion
-
-
-
-# R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-# Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 # References
