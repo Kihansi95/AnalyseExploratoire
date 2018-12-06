@@ -9,7 +9,7 @@ output:
         toc: true
         toc_depth : 3
         highlight: zenburn
-bibliography: report2.bib
+bibliography: report.bib
 ---
 
 ```{r setup, include=FALSE}
