@@ -4,12 +4,12 @@ subtitle : "Des médailles aux JO !"
 author: "Duc Hau NGUYEN; Anaïs RABARY"
 date: "4 Décembre 2018"
 fontsize : 11pt
-output:
-  pdf_document:
-    toc: true
-    toc_depth : 3
-    highlight: zenburn
-bibliography: Report/report.bib
+output: 
+    pdf_document:
+        toc: true
+        toc_depth : 3
+        highlight: zenburn
+bibliography: report2.bib
 ---
 
 ```{r setup, include=FALSE}
