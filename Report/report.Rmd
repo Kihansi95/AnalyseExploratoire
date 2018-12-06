@@ -4,17 +4,20 @@ subtitle : "Des médailles aux JO !"
 author: "Duc Hau NGUYEN; Anaïs RABARY"
 date: "4 Décembre 2018"
 fontsize : 11pt
-## output: pdf_document
 output:
   pdf_document:
     toc: true
     toc_depth : 3
     highlight: zenburn
-bibliography: report.bib
+bibliography: Report/report.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+    echo = FALSE,
+    warning = FALSE,
+    message = FALSE
+)
 
 library(ggplot2)
 library(stringr)
@@ -24,14 +27,9 @@ library(tidyr)
 library(readr)
 ```
 
-```{r dataset, echo=FALSE}
+```{r dataset }
 # le code n'affichera pas si echo = false
-# j'ai changé le read to read.csv2 
-#car sinon on avait un affichage des colonnes parsées dans le rapport
-olympic_dataset <- read.csv2("../data/olympic-history-athletes-and-results/athlete_events.csv", sep=",", dec=".")
-levels <- levels(olympic_dataset$Medal)
-levels[length(levels) + 1]  <- "None"                                     
-olympic_dataset$Medal <- factor(olympic_dataset$Medal, levels = levels)
+olympic_dataset <- read_csv("../data/olympic-history-athletes-and-results/athlete_events.csv")
 olympic_dataset$Medal[is.na(olympic_dataset$Medal)] <- "None"
 factor_cols <- c('Sex', 'NOC', 'Medal', 'Sport')
 olympic_dataset[factor_cols] <- lapply(olympic_dataset[factor_cols], factor)
@@ -42,10 +40,10 @@ olympic_dataset[factor_cols] <- lapply(olympic_dataset[factor_cols], factor)
 # Introduction 
 
 ## Contexte
-Les Jeux Olympiques (JO) sont une compétition dont nous avons hérité de la Grèce Antique. On lit souvent que seuls les citoyens les plus riches pouvaient y participer. La trève olympique permettait à la civilisation d'oublier, le temps de 12 travaux, les guerres et troubles de l'époque.
+Les **Jeux Olympiques** (JO) sont une compétition dont nous avons hérité de la Grèce Antique. On lit souvent que seuls les citoyens les plus riches pouvaient y participer. La trève olympique permettait à la civilisation d'oublier, le temps de 12 travaux, les guerres et troubles de l'époque.
 Après quelques maigres tentatives, c'est seulement depuis 1896 que les Jeux Olympiques modernes voient le jour, à Athènes.
 
-Dans le cadre du projet d'Analyse Exploratoire à l'INSA Toulouse, avec l'accompagnement de notre professeur Gilles Tredan, nous avons récupéré sur le site Kaggle un dataset sur ces Jeux Olympiques moderne. Ce dernier recense des informations sur tous les athlètes ayant participés aux JO, les médailles qu'ils ont gagnés, leur équipe, l'année de participation, etc. Suivant les axes explorés dans ce rapport et détaillés ci-après, nous avons eu besoin de croiser nos données avec des données sur le PIB des pays, issues de la source World Wide Data.
+Dans le cadre du projet d'**Analyse Exploratoire** à l'**INSA Toulouse**, avec l'accompagnement de professeur **Gilles Tredan**, nous avons récupéré sur le site Kaggle un dataset sur ces JO moderne [@Olympic_dataset]. Ce dernier recense des informations sur tous les athlètes ayant participés aux JO, les médailles qu'ils ont gagnés, leur équipe, l'année de participation, etc. Suivant les axes explorés dans ce rapport et détaillés ci-après, nous avons eu besoin de croiser nos données avec des données sur le PIB des pays, issues de la source World Wide Data.
 
 Sauf précision contraire, les données sont exploitées ici dans leur totalité, depuis la création des Jeux Olympiques modernes (1896). Suivant l'analyse, les données incomplètes seront traitées différemment. Ces choix seront justifiés si nécessaire.
 
@@ -61,14 +59,15 @@ Dans cette étude, on analyse ces problématiques via les grandes axes suivant :
 
 # 1. Premièr axe: Les caractéristiques physiques des athlètes inflencent leur performance
 
-## 1.1 l'âge optimise la performance
+##  1.1 l'âge optimise la performance
 L'approche naïve permet ici de présenterle nombre de médailles que chaque tranche d'âge a pu obtenir, quelque soit l'année des Jeux. La performance est mesurée ici en fonction du nombre de médailles gagnées ainsi qu'en fonction de la "couleur" de la médaille. C'est en effet un bon indicteur pour discriminer les performances entre les athlètes sur le podium et ceux n'ayant pas remporté de médaille. 
 
 ```{r qual_medal_age, echo=FALSE, warning=FALSE}
 olympic_dataset %>% 
     count(Age, Medal) %>%
     subset(Medal != "None") %>%
-    ggplot(aes(x = Age, y = n, fill = Medal)) + geom_bar(stat = "identity") +
+    ggplot(aes(x = Age, y = n, fill = Medal)) + 
+    geom_bar(stat = "identity") +
     labs(x="Âge en année", y="Nombre de médailles", title = "Qualité des médailles obtenues selon l'âge des athlètes")
 ```
 
@@ -80,61 +79,102 @@ $Performance = \frac{\#Medal}{\#Participant} = \frac{\sum(Gold + Silver + Bronze
 
 Cette formule n'est pas adaptée lorsque l'on a un seul participant. Car s'il gagne une médaille, la probabilité sera de 100%.
 
-```{r perf_medal_age, echo=FALSE, warning=FALSE}
-medal_per_age <- olympic_dataset %>%
+```{r perf_medal_age_filtered, echo=FALSE, warning=FALSE}
+olympic_dataset %>%
     count(Age, Medal) %>%
     spread(Medal, n, fill=0) %>%
+    
     mutate(
         Nb_participant = Bronze + Gold + Silver + None,
-        Nb_medal = Bronze + Gold + Silver
-    )
-
-medal_per_age = medal_per_age %>%
-    mutate(
+        Nb_medal = Bronze + Gold + Silver,
         Performance = (Nb_medal / Nb_participant)
-    )
-
-ggplot(medal_per_age, aes(x = Age, y = Performance)) + 
+    ) %>% 
+    
+    ggplot(aes(x = Age, y = Performance)) + 
     geom_bar(stat = "identity", aes(fill = Performance)) + 
-    coord_cartesian(xlim=c(10, 75))  +
+    coord_cartesian(xlim=c(10, 74))  +
     xlab("Age")+
     ylab("Performance") +
     ggtitle("Chance d'avoir un médail pour un sportif")+
-    labs(subtitle="Le plus haute valeur, le mieux chance qu'on a. Valeur 1 veut dire que 100% le pays gagnera de médaille")
+    labs(subtitle="Plus haute la valeur, plus probable qu'on gagne.")
 ```
 
 Comme prévu par la formule, nous obtenons 100% pour les athlètes agés de 10ans. En fait,il n'y a qu'un seul athlète agé de 10, Dimitrios Loundras en 1896 et il a effectivement remporté une médaille. Considérons ces pertubations comme un bruit, on "nettoie" les catégorie d'âge qui n'ont pas "suffisamment" d'observations.
 
-## 1.2 La taille entre-t-elle en question ?
+```{r perf_medal_age, echo=FALSE, warning=FALSE}
+olympic_dataset %>%
+    count(Age, Medal) %>%
+    spread(Medal, n, fill=0) %>%
+    
+    mutate(
+        Nb_participant = Bronze + Gold + Silver + None,
+        Nb_medal = Bronze + Gold + Silver,
+        Performance = (Nb_medal / Nb_participant)
+    ) %>% 
+    
+    filter(Nb_participant > 500) %>%
+    
+    ggplot(aes(x = Age, y = Performance)) + 
+    geom_bar(stat = "identity", aes(fill = Performance)) + 
+    coord_cartesian(xlim=c(13, 47))  +
+    xlab("Age")+
+    ylab("Performance") +
+    ggtitle("Chance d'avoir un médail pour un sportif")+
+    labs(subtitle="Seulement les données à plus de 500 observations")
+```
+
+Nous voyons que à l'âge de 25 - 28, les gagnants sont plus probables, mais leur nombre de partcipant sont moins importants.
+
+## 1.2 Les âges "optimums" sont-ils les mêmes pour homme/femme ?
+
+Projetons cette axes sur une autre dimension: Sex. On voit que, l'âge efficace est différent entre homme et femme: la condition physique des femmes maturise plus tôt que les hommes:
+
+```{r perf_medal_age_sex, echo=FALSE, warning=FALSE}
+olympic_dataset %>%
+    count(Age, Medal, Sex) %>%
+    spread(Medal, n, fill=0) %>%
+    mutate(Total = Bronze + Gold + Silver) %>%
+    group_by(Sex) %>%
+    mutate(Performance = Total * 100 / max(Total)) %>%
+    ggplot() + 
+    geom_bar(stat = "identity", position="dodge", aes(x = Age, y = Performance, fill=Sex)) +
+    coord_cartesian(xlim=c(12, 60)) +
+    xlab("Age")+
+    ylab("Medal won") +
+    ggtitle("Nombre de médaille gagnant")+
+    labs(subtitle="Pour la raison de visibilité, cette valeur est standardisé entre 0 et 100")
+```
+
+## 1.3 La taille entre-t-elle en question ?
 
 A travers l'étude suivante, on veut essayer de comprendre si la taille des athlètes est corrélées avec leur performance. On présente ici les médailles gagnées par les athlètes féminines et masculins en fonction de leur taille.
 
-
 ```{r medals_height, echo=FALSE, warning=FALSE}
-olympic_dataset <- drop_na(olympic_dataset, Height)
-medals_per_height <- ddply(olympic_dataset,
-                           .(Height, Sex),
-                           function(x){
-                             medals <- sum(x$Medal=="Gold" | x$Medal=="Sylver" | x$Medal =="Bronze")
-                             data.frame(Medals= medals)
-                           }  )
-ggplot(data=medals_per_height,aes(Height, Medals))+geom_col(position="dodge", aes(fill=Sex))+labs(x="taille en cm", y="Total des médailles (Or, Argent, Bronze)", title = "Nombre de médailles gagnées par les athlètes suivant leur taille et leur sexe", subtitle="Depuis le début des Jeux Olympiques")
-
-
+olympic_dataset %>% 
+    drop_na(Height) %>%
+    ddply(.(Height, Sex),
+       function(x){
+         medals <- sum(x$Medal=="Gold" | x$Medal=="Sylver" | x$Medal =="Bronze")
+         data.frame(Medals= medals)
+       }) %>%
+    ggplot(aes(Height, Medals)) +
+    geom_col(position="dodge", aes(fill=Sex)) +
+    coord_cartesian(xlim=c(140, 220)) +  # Je "zoom" le graphe pour en coupant la fenêtre
+    xlab("Taille en cm") +
+    ylab("Total des médailles (Or, Argent, Bronze)") +
+    ggtitle("Nombre de médailles gagnées par les athlètes suivant leur taille et leur sexe") +    
+    labs(subtitle="Depuis le début des JO")
 ```
 Comme on pouvait s'y attendre, le nombre de médailles suivant la taille a une allure de distribussion gaussienne. La taille des hommes où le pic du nombre de médailles gagnées est le plus important est à 1m80 pour 941 médailles. Chez les femmes, le pic est à 1m70, pour 535 médailles.
 Ces tailles correspondent bien à des tailles normales pour des hommes et des femmes. D'autre part, on visualise, par l'allure des courbes par sexe, que les femmes sont généralement plus petites que les hommes
 
-
-
-# 2.2eme axe : la situation économique et sociale, un impact sur les résultats nationaux
+# 2. Deuxième axe : la situation économique et sociale, un impact sur les résultats nationaux
 
 ## 2.1 Présentation
 Premièrement, on peut noter que les Femmes ne sont autorisées à participer aux JO qu'à partir de la 7ème édition, en 1920. Jusqu'alors, seuls des hommes concourraient. 
 D'autre part, on constate que les éditions devant se dérouler pendant les guerres mondiales ont été annulées. C'est le cas en 1916, 1940 et 1944.
 
 A partir de ces 1eres constatations dans notre jeu de données, on peut se demander si les conflits qu'a rencontré un pays, a pu se constater dans une dégradation des résultats de l'édition à ce moment là.
-
 
 ## 2.2 La croissance fulgurante des femmes
 Dans notre société actuelle, on aborde la place de la femme dans tous les domaines. On aborde surtout le problème de la différence de rémunération. Dans le graphe suivant, on peut observer l'évolution du nombre de médailles remportés respectivement par les hommes et les femmes, au cours des sessions olympiques.
@@ -160,29 +200,15 @@ ggplot(medals_year,aes(Year, Medals, group=Sex))+geom_col(position="dodge",aes(f
 
 #proportion femme-homme parmis les athlètes
 homme_femme <- ddply(olympic_dataset, .(Year), function(x){ data.frame(Proportion = sum(x$Sex=="F")/(sum(x$Sex=="F")+sum(x$Sex=="M")))})
-
-
 ```
 
 On retrouve l'absence de femmes aux JO avant les années 1920. 
 Mais ensuite, on remarque surtout la progression réalisée en terme de nombre de médailles gagnées par les femmes. Cela correspond à une évolution positive de la place de la femme notre société. Une femme pouvant participer et s'affirmer dans une compétition sportive est un signe de liberté et d'égalité. On notera aussi l'augmentation croissante de la proportion de femmes participants parmis les athlètes. De 3% en 1920, les femmes représentent 18% des athlètes en 1960, 39% en 2000. En 2016, elles représentaient 45% de la population d'athèles. 
 
 
-## 2.2 Analyse
-
-## 2.3 Résultats
-
-
-
-# 3.Problématique 3
-
-## 3.1 Présentation
-
-## 3.2 Analyse
-
-## 3.3 Résultats
-
+## 2.3 L'argent joue en jeux?
 
 # Conclusion
+
 
 # References
