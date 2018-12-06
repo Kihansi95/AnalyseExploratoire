@@ -72,13 +72,13 @@ olympic_dataset %>%
     labs(x="Âge en année", y="Nombre de médailles", title = "Qualité des médailles obtenues selon l'âge des athlètes")
 ```
 
-D'après le résultat, on constate que l'âge entre 20 et 27 sera le pique de maturité des sportifs. Cependant, cette induction est faite sur l'hypothèse où le nombre de participant ne joue pas en jeu. En effet, il peut arriver que l'on a beaucoup de participant à l'âge de 20 à 27, mais très peu entre eux ont gagné, alors que peut-être ceux qui sont plus âgés participe moins mais gagne plus.
+D'après le résultat, on constate que le pic de maturité des sportifs est atteint entre 20 et 27 ans. Cependant, cette déduction est faite sur l'hypothèse pour laquelle le nombre de participants n'entre pas en jeu. En effet, il peut arriver que l'on ai beaucoup de participants âgés de 20 à 27 ans, mais que seulement une faible proportion d'entre eux aient gagné, alors que peut-être ceux qui sont plus âgés sont moins nombreux à participer mais on un ratio de médailles plus élevé.
 
-Pour vérifier notre hypothèse, on calcule la "Performance" des participant. L'indice de performance sera naïvement basé sur la probabilité d'un participant figurant dans telle catégorie a la chance de gagner un médaille ou pas. Formellement:
+Pour vérifier notre hypothèse, on calcule la "Performance" des participants. L'indice de performance détermine la probabilité qu'a un participant figurant dans une catégorie de gagner une médaille ou pas. Formellement:
 
 $Performance = \frac{\#Medal}{\#Participant} = \frac{\sum(Gold + Silver + Bronze)}{\sum(all)}$
 
-Cette formule n'est pas adaptatif lors qu'on a qu'un seul participant et lui il gagne du médaille, la probabilité sera à 100%
+Cette formule n'est pas adaptée lorsque l'on a un seul participant. Car s'il gagne une médaille, la probabilité sera de 100%.
 
 ```{r perf_medal_age, echo=FALSE, warning=FALSE}
 medal_per_age <- olympic_dataset %>%
@@ -103,7 +103,7 @@ ggplot(medal_per_age, aes(x = Age, y = Performance)) +
     labs(subtitle="Le plus haute valeur, le mieux chance qu'on a. Valeur 1 veut dire que 100% le pays gagnera de médaille")
 ```
 
-Comme cela dit, nous obtenons 100% pour l'âge de 10 alors qu'on a qu'un seul cas : Dimitrios Loundras en 1896. Considérons ces pertubations comme un bruit, on "nettoie" les catégorie d'âge qui n'ont pas "suffisamment" d'observation.
+Comme prévu par la formule, nous obtenons 100% pour les athlètes agés de 10ans. En fait,il n'y a qu'un seul athlète agé de 10, Dimitrios Loundras en 1896 et il a effectivement remporté une médaille. Considérons ces pertubations comme un bruit, on "nettoie" les catégorie d'âge qui n'ont pas "suffisamment" d'observations.
 
 ## 1.2 La taille entre-t-elle en question ?
 

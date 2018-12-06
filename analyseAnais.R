@@ -184,9 +184,9 @@ t+labs(x="Regions", y="Sum Medals", title = "Top 10 regions that won the most me
 
 PIBtop10medals<-filter(PIBdata,PIBdata$region %in% medals_region$region)
 PIBtop10medals <- arrange(filter(PIBtop10medals, PIBtop10medals$Year >= "1968"), Year)
-#t<-
-ggplot(data=PIBtop10medals,aes(Year, PIB, group=region))+geom_line(aes(color=region), size=1)
-t+labs(x="Regions", y="PIB", title = "PIB evolution of Top 10 regions that won the most medals")
+PIBtop10medals$PIB <- as.numeric(as.character(PIBtop10medals$PIB))
+
+ggplot(data=PIBtop10medals,aes(Year,PIB, group=region))+geom_line(aes(color=region), size=1)+labs(x="Regions", y="PIB", title = "PIB evolution of Top 10 regions that won the most medals")
 
 #******************************************************************
 # GOAL : see PIB of top 10 country in 2016
