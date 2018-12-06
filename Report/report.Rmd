@@ -24,15 +24,19 @@ library(stringr)
 library(plyr)
 library(dplyr)
 library(tidyr)
-library(readr)
+library(readr)   # load dataset
+library(gridExtra)    # arrange plots
 ```
 
 ```{r dataset }
-# le code n'affichera pas si echo = false
+# Load dataset
 olympic_dataset <- read_csv("../data/olympic-history-athletes-and-results/athlete_events.csv")
+# Format dataset
 olympic_dataset$Medal[is.na(olympic_dataset$Medal)] <- "None"
 factor_cols <- c('Sex', 'NOC', 'Medal', 'Sport')
 olympic_dataset[factor_cols] <- lapply(olympic_dataset[factor_cols], factor)
+separate(olympic_dataset, Games, c("Year_Games", "Season"), sep = " ")  # J'ajoute une nouvelle colonne pour indiquer les saisons
+olympic_dataset$Year_Games <- NULL
 ```
 
 \newpage
@@ -77,10 +81,10 @@ Pour vérifier notre hypothèse, on calcule la "Performance" des participants. L
 
 $Performance = \frac{\#Medal}{\#Participant} = \frac{\sum(Gold + Silver + Bronze)}{\sum(all)}$
 
-Cette formule n'est pas adaptée lorsque l'on a un seul participant. Car s'il gagne une médaille, la probabilité sera de 100%.
+Cette formule n'est pas adaptée lorsque l'on a un seul participant. Car s'il gagne une médaille, la probabilité sera de 100%. On peut voir dans la figure à gauche un pique à l'âge de 10: le seul participant à cet âge **Dimitrios Loundras** en 1896 qui a gagné 1 médaille.
 
 ```{r perf_medal_age_filtered, echo=FALSE, warning=FALSE}
-olympic_dataset %>%
+perf <- olympic_dataset %>%
     count(Age, Medal) %>%
     spread(Medal, n, fill=0) %>%
     
@@ -95,14 +99,10 @@ olympic_dataset %>%
     coord_cartesian(xlim=c(10, 74))  +
     xlab("Age")+
     ylab("Performance") +
-    ggtitle("Chance d'avoir un médail pour un sportif")+
-    labs(subtitle="Plus haute la valeur, plus probable qu'on gagne.")
-```
+    ggtitle("Chance de gagner médaille")+
+    labs(subtitle="Plus haute la valeur,\n plus probable qu'on gagne.")
 
-Comme prévu par la formule, nous obtenons 100% pour les athlètes agés de 10ans. En fait,il n'y a qu'un seul athlète agé de 10, Dimitrios Loundras en 1896 et il a effectivement remporté une médaille. Considérons ces pertubations comme un bruit, on "nettoie" les catégorie d'âge qui n'ont pas "suffisamment" d'observations.
-
-```{r perf_medal_age, echo=FALSE, warning=FALSE}
-olympic_dataset %>%
+perf_clean <- olympic_dataset %>%
     count(Age, Medal) %>%
     spread(Medal, n, fill=0) %>%
     
@@ -119,17 +119,19 @@ olympic_dataset %>%
     coord_cartesian(xlim=c(13, 47))  +
     xlab("Age")+
     ylab("Performance") +
-    ggtitle("Chance d'avoir un médail pour un sportif")+
-    labs(subtitle="Seulement les données à plus de 500 observations")
+    ggtitle("Chance de gagner médaille")+
+    labs(subtitle="Seulement les données à plus de\n 500 observations")
+
+grid.arrange(perf, perf_clean, ncol = 2)
 ```
 
-Nous voyons que à l'âge de 25 - 28, les gagnants sont plus probables, mais leur nombre de partcipant sont moins importants.
+Dans le diagramme à droit, en filtrant les catégories dont le nombre d'observation n'est pas "suffisant", on voit que l'âge idéale pour gagner de médaille est à la fin de 20 devant 30 ans.
 
 ## 1.2 Les âges "optimums" sont-ils les mêmes pour homme/femme ?
 
 Projetons cette axes sur une autre dimension: Sex. On voit que, l'âge efficace est différent entre homme et femme: la condition physique des femmes maturise plus tôt que les hommes:
 
-```{r perf_medal_age_sex, echo=FALSE, warning=FALSE}
+```{r perf_medal_age_sex}
 olympic_dataset %>%
     count(Age, Medal, Sex) %>%
     spread(Medal, n, fill=0) %>%
@@ -149,7 +151,7 @@ olympic_dataset %>%
 
 A travers l'étude suivante, on veut essayer de comprendre si la taille des athlètes est corrélées avec leur performance. On présente ici les médailles gagnées par les athlètes féminines et masculins en fonction de leur taille.
 
-```{r medals_height, echo=FALSE, warning=FALSE}
+```{r medals_height}
 olympic_dataset %>% 
     drop_na(Height) %>%
     ddply(.(Height, Sex),
@@ -179,7 +181,7 @@ A partir de ces 1eres constatations dans notre jeu de données, on peut se deman
 ## 2.2 La croissance fulgurante des femmes
 Dans notre société actuelle, on aborde la place de la femme dans tous les domaines. On aborde surtout le problème de la différence de rémunération. Dans le graphe suivant, on peut observer l'évolution du nombre de médailles remportés respectivement par les hommes et les femmes, au cours des sessions olympiques.
 
-```{r women territory, echo=FALSE}
+```{r women territory}
 medals_year <- ddply(olympic_dataset,
                            .(Year, Sex),
                            function(x){
@@ -195,11 +197,32 @@ medals_year$Year[medals_year$Year=="2006"]<- "2004"
 medals_year$Year[medals_year$Year=="2010"]<- "2008"
 medals_year$Year[medals_year$Year=="2014"]<- "2012"
 
-ggplot(medals_year,aes(Year, Medals, group=Sex))+geom_col(position="dodge",aes(fill=Sex))+
-  labs(x="Années", y="Total Medailles", title = "Evolution du nombre de médailles gagnées par sexe")
+ggplot(medals_year,aes(Year, Medals, group=Sex)) +
+    geom_col(position="dodge",aes(fill=Sex)) +
+    labs(x="Années", y="Total Medailles", title = "Evolution du nombre de médailles gagnées par sexe")
+
+
+# je ne sais pas ce que tu veux faire en attibuant Year = Year - 2 pour les année 1994 - 2014.
+# Tu peux faire mieux: medals_year$Year[medals_year$Season=="Winter"] <- medals_year$Year - 2
+# Voir le code en bas si c'est ça tu veux faire ...
 
 #proportion femme-homme parmis les athlètes
 homme_femme <- ddply(olympic_dataset, .(Year), function(x){ data.frame(Proportion = sum(x$Sex=="F")/(sum(x$Sex=="F")+sum(x$Sex=="M")))})
+```
+TODO: Anais check out dans le code
+
+```{r women_man}
+olympic_dataset %>%
+    count(Year, Sex, Season, Medal) %>%  # -----
+    subset(Medal != "None") %>%          #   | 
+    spread(Medal, n, fill=0) %>%         #   |    ça remplace ddply, tu peux comparer le résultat des 2
+    mutate(                              #   |
+        Medals = Bronze + Gold + Silver, # ----- 
+        Year = replace(Year, Season == "Winter", Year - 2) # ça remplace treat case of winter and summer
+    ) %>%
+    ggplot(aes(Year, Medals, group=Sex)) +
+    geom_col(position="dodge",aes(fill=Sex)) +
+    labs(x="Années", y="Total Medailles", title = "Evolution du nombre de médailles gagnées par sexe")
 ```
 
 On retrouve l'absence de femmes aux JO avant les années 1920. 
