@@ -124,8 +124,10 @@ ggplot(medals_year,aes(Year, Medals, group=Sex))+geom_col(position="dodge",aes(f
 
 homme_femme <- ddply(olympic_dataset, .(Year), function(x){ data.frame(Proportion = sum(x$Sex=="F")/(sum(x$Sex=="F")+sum(x$Sex=="M")))})
 
+homme_femme$Year<- as.numeric(as.character(homme_femme$Year))
+ggplot(homme_femme, aes(Year, Proportion))+geom_line(size=1, color="orchid2")+ labs(x="Années", y="Proportion des femmes", title="Evolution dans les temps de la proportion des femmes parmis les athlètes des Jeux Olympiques")
 
-#**************************************************************************************************
+#**********************************F****************************************************************
 #GOAL : top winners in summer/in winter
 
 medals_in_summer <- ddply(filter(olympic_dataset,Season == 'Summer'),
@@ -156,6 +158,7 @@ medals_in_winter$region <- factor(medals_in_winter$region, levels = medals_in_wi
 
 # **************************************************************************************************************************
 # GOAL : étudier l'évolution PIB des pays gagnant
+# DEPRECEATED
 
 # Medailles/region, toutes années confondues
 t<- ggplot(data=medals_in_winter,aes(region, Medals))+geom_col(position="dodge",aes(fill=region))
@@ -190,6 +193,7 @@ ggplot(data=PIBtop10medals,aes(Year,PIB, group=region))+geom_line(aes(color=regi
 
 #******************************************************************
 # GOAL : see PIB of top 10 country in 2016
+# DEPRECEATED
 PIBdata2016 <- arrange(filter(PIBdata,PIBdata$Year=="2016"), desc(PIB))
 top2016PIB <-top_n(PIBdata2016, 10, PIB)
 # Reorder factor : 
@@ -223,6 +227,7 @@ t+labs(x="Regions", y="medals", title = "Top 10 regions that won the most medals
 
 #********************************************************************
 # GOALS : see PIB evolution over 1980 to 2016 of top 10 winners in 2016
+# DEPRECEATED
 
 PIB_10 <- arrange(filter(PIBdata,PIBdata$region %in% top5_2016$region), Year)
 t <- ggplot(data=PIB_10, aes(Year,PIB,group=region))+geom_line(aes(color=region), size =1)
@@ -234,6 +239,7 @@ t+labs(x="Year", y="PIB", title = "PIB evolution over 1980 to 2016 of top 10 win
 #*****************************************************************
 # GOAL : influence des guerres 
 # constat : pas de JO pendant les guerres mondiales
+#DEPRECEATED
 
 
 medalsTot <- ddply(olympic_dataset,
@@ -280,8 +286,8 @@ t+labs(x="Regions", y="Medals", title = "Top 10 regions that won the most medals
 
 #******************************************************************
 #GOAL : set a column of country rank of PIB
-# TODO
 
+# SUJETS d'OUVERTURE 
 # Question : quel est le rang PIB de chaque pays remportant le plus de médaille ? 
 # est-ce que l'ordre change au fil des ans ? et le PIB ?
 # quelle est la place dans les JO des Pays qui ont le PIB le plus important ?
